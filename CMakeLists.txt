@@ -1,0 +1,93 @@
+﻿cmake_minimum_required (VERSION 3.14)
+
+# Enable Hot Reload for MSVC compilers if supported.
+if (POLICY CMP0141)
+  cmake_policy(SET CMP0141 NEW)
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+endif()
+
+project ("WebcamCVPostprocess")
+
+include(FetchContent)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
+set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+#find_package(OpenGL REQUIRED)
+
+# Get glew
+set(glew-cmake_BUILD_SHARED FALSE)
+set(ONLY_LIBS ON)
+
+FetchContent_Declare(
+  glew
+  GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
+  GIT_TAG        origin/master
+)
+FetchContent_MakeAvailable(glew)
+
+# Get GLFW from Cherno
+set(GLFW_BUILD_TESTS FALSE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+		glfw
+		GIT_REPOSITORY https://github.com/TheCherno/glfw.git
+		GIT_TAG origin/master
+)
+FetchContent_MakeAvailable(glfw)
+
+# Get Dear ImGui
+FetchContent_Declare(
+        imgui
+        GIT_REPOSITORY https://github.com/ocornut/imgui.git
+        GIT_TAG "8ba7efb"
+)
+
+FetchContent_GetProperties(imgui)
+if (NOT imgui_POPULATED)
+    FetchContent_Populate(imgui)
+    set(IMGUI_PATH ${CMAKE_BINARY_DIR}/_deps/imgui-src)
+    file(GLOB IMGUI_GLOB
+        ${IMGUI_PATH}/imgui.h
+        ${IMGUI_PATH}/imgui.cpp
+        ${IMGUI_PATH}/imconfig.h
+        ${IMGUI_PATH}/imgui_demo.cpp
+        ${IMGUI_PATH}/imgui_draw.cpp
+        ${IMGUI_PATH}/imgui_internal.h
+        ${IMGUI_PATH}/imstb_rectpack.h
+        ${IMGUI_PATH}/imstb_textedit.h
+        ${IMGUI_PATH}/imstb_truetype.h
+        ${IMGUI_PATH}/imgui_tables.cpp
+        ${IMGUI_PATH}/imgui_widgets.cpp
+
+        # specific bindings...
+        ${IMGUI_PATH}/backends/imgui_impl_glfw.h
+        ${IMGUI_PATH}/backends/imgui_impl_glfw.cpp
+        ${IMGUI_PATH}/backends/imgui_impl_opengl3.h
+        ${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
+        ${IMGUI_PATH}/backends/imgui_impl_opengl3_loader.cpp)
+    add_library("imgui" STATIC ${IMGUI_GLOB})
+    target_include_directories("imgui" PUBLIC ${IMGUI_PATH})
+    target_link_libraries("imgui" PUBLIC glfw)
+    endif()
+
+find_package( OpenCV REQUIRED HINTS $ENV{OpenCV_DIR})
+
+if (WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_executable(${PROJECT_NAME} WIN32
+    "src/main.cpp" "src/Roboto-Medium" "src/Application.cpp"
+    "include/Application.h"
+    )
+else()
+    add_executable(${PROJECT_NAME}
+    "src/main.cpp" "src/Roboto-Medium.cpp" "src/Application.cpp"
+    "include/Application.h"
+     "include/WebcamCapture.h" "src/WebcamCapture.cpp" "include/Renderer.h" "src/Renderer.cpp"
+     "include/Shader.h" "src/Shader.cpp")
+endif()
+
+target_include_directories(${PROJECT_NAME} PRIVATE imgui ${GLEW_INCLUDE_DIRS} ${INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE imgui libglew_static ${OpenCV_LIBS})
