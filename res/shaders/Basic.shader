@@ -3,9 +3,11 @@
 
 // fullcreen quad vertex shader
 
-layout (location = 1) in vec2 Position;
-layout (location = 2) in vec2 UV;
-layout (location = 0) in vec4 Color;
+layout (location = 0) in vec3 pos;
+
+//layout (location = 1) in vec2 Position;
+//layout (location = 2) in vec2 UV;
+//layout (location = 0) in vec4 Color;
 //layout(location = 1) in vec2 texCoord;
 
 out vec2 v_TexCoords;
@@ -20,8 +22,7 @@ void main()
     //     vec2(-1.0, 1.0)   // Top-left
     // );
 
-    // Assign position to gl_Position
-    gl_Position = vec4(Position.xy, 0, 1);
+    gl_Position = vec4(0.2f*pos.x, 0.2f*pos.y, 0*pos.z, 1.0);
     
     // Texture coordinates for each vertex
     //v_TexCoords = (positions[gl_VertexID] + 1.0) * 0.5;
@@ -40,5 +41,5 @@ uniform sampler2D u_Texture;
 void main()
 {
    //color = texture(u_Texture, v_TexCoords);
-   color = vec4(1, 0, 0, 1);
+   color = vec4(1, 0, 1, 1);
 };

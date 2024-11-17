@@ -86,7 +86,10 @@ else()
     "src/main.cpp" "src/Roboto-Medium.cpp" "src/Application.cpp"
     "include/Application.h"
      "include/WebcamCapture.h" "src/WebcamCapture.cpp" "include/Renderer.h" "src/Renderer.cpp"
-     "include/Shader.h" "src/Shader.cpp")
+     "include/Shader.h" "src/Shader.cpp" "include/IndexBuffer.h" "src/IndexBuffer.cpp"
+    "include/VertexBuffer.h" "src/VertexBuffer.cpp" "include/VertexArray.h" "src/VertexArray.cpp"
+    "include/VertexBufferLayout.h" "include/Framebuffer.h" "src/Framebuffer.cpp"
+    )
 endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE imgui ${GLEW_INCLUDE_DIRS} ${INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})

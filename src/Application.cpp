@@ -1,6 +1,9 @@
 #include "Application.h"
-#include "Shader.h"
 #include <filesystem>
+
+#include "VertexArray.h"
+#include "IndexBuffer.h"
+#include "Shader.h"
 
 namespace gl_cv_app {
 
@@ -30,7 +33,7 @@ namespace gl_cv_app {
         const char* glsl_version = "#version 330";
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #ifdef _DEBUG
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
@@ -76,6 +79,9 @@ namespace gl_cv_app {
         ImGui_ImplOpenGL3_Init(glsl_version);
         ImFont* font = io.Fonts->AddFontFromMemoryCompressedTTF((const void*)Roboto_Medium_compressed_data, Roboto_Medium_compressed_size, 20);
         m_renderer.setIO(&io);
+        GLuint texture = m_webcam.getTexture();
+        m_renderer.setTexture(texture);
+        m_renderer.createFramebuffer(texture);
 
         return 1;
     }
@@ -87,6 +93,25 @@ namespace gl_cv_app {
 
     void Application::run()
     {
+        float positions[] = {
+        -1.0f, -1.0f, 0.0f, 0.0f, // 0 bottom left
+         0.0f, -1.0, 1.0f, 0.0f,  // 1 bottom right
+         0.0f,  1.0f, 1.0f, 1.0f, // 2 top right
+         -1.0f, 1.0f, 0.0f, 1.0f  // 3 top left
+        };
+
+        unsigned int indices[] = {
+            0, 1, 2,
+            2, 3, 0
+        };
+
+        VertexBuffer vb(positions, 4 * 4 * sizeof(float));
+        IndexBuffer ib(indices, 6);
+        VertexArray va;
+        VertexBufferLayout layout;
+        layout.Push<float>(2);
+        layout.Push<float>(2);
+        va.AddBuffer(vb, layout);
         Shader shader("res\\shaders\\Basic.shader");
 
         // Main loop
@@ -105,7 +130,8 @@ namespace gl_cv_app {
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            m_renderer.render(shader);
+            m_renderer.setTexture(m_webcam.getTexture());
+            m_renderer.render(va, ib, shader);
 
             //// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
             //if (m_show_demo_window)
