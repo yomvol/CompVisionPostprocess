@@ -1,31 +1,15 @@
 #shader vertex
 #version 330 core
 
-// fullcreen quad vertex shader
-
-layout (location = 0) in vec3 pos;
-
-//layout (location = 1) in vec2 Position;
-//layout (location = 2) in vec2 UV;
-//layout (location = 0) in vec4 Color;
-//layout(location = 1) in vec2 texCoord;
+layout (location = 0) in vec2 pos;
+layout(location = 1) in vec2 texCoord;
 
 out vec2 v_TexCoords;
 
 void main()
 {
-    // hard coded fullcreen triangle strip vertices
-    // vec2 positions[4] = vec2[4](
-    //     vec2(-1.0, -1.0), // Bottom-left
-    //     vec2(1.0, -1.0),  // Bottom-right
-    //     vec2(1.0, 1.0),   // Top-right
-    //     vec2(-1.0, 1.0)   // Top-left
-    // );
-
-    gl_Position = vec4(0.2f*pos.x, 0.2f*pos.y, 0*pos.z, 1.0);
-    
-    // Texture coordinates for each vertex
-    //v_TexCoords = (positions[gl_VertexID] + 1.0) * 0.5;
+    gl_Position = vec4(pos.xy, 0.0, 1.0);
+    v_TexCoords = texCoord;
 };
 
 #shader fragment
@@ -33,13 +17,12 @@ void main()
 
 layout(location = 0) out vec4 color;
 
-//in vec2 v_TexCoords;
+in vec2 v_TexCoords;
 
-//uniform vec4 u_Color;
 uniform sampler2D u_Texture;
 
 void main()
 {
    //color = texture(u_Texture, v_TexCoords);
-   color = vec4(1, 0, 1, 1);
+   color = vec4(0, 1, 0, 1);
 };

@@ -7,7 +7,6 @@ private:
     unsigned int m_RBO_ID;
     unsigned int m_TextureID;
 
-
 public:
     Framebuffer(unsigned int textureID, unsigned int width, unsigned int height);
     virtual ~Framebuffer();

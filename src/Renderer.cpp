@@ -3,13 +3,17 @@
 
 namespace gl_cv_app {
 
-    Renderer::Renderer(GLFWwindow* window) : m_window(window), m_texture(0) {
-        glfwGetFramebufferSize(m_window, &m_width, &m_height);
-    }
+    Renderer::Renderer() : m_texture(0), m_tex_size(0, 0) {}
 
     Renderer::~Renderer()
     {
         glDeleteTextures(1, &m_texture);
+    }
+
+    void Renderer::init(GLFWwindow* window)
+    {
+        m_window = window;
+        glfwGetFramebufferSize(m_window, &m_width, &m_height);
     }
 
     void Renderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const
@@ -23,19 +27,18 @@ namespace gl_cv_app {
 
     void Renderer::render(const VertexArray& va, const IndexBuffer& ib, Shader& shader)
     {
-        glViewport(0, 0, m_width, m_height);
         glClearColor(m_clear_color.x * m_clear_color.w, m_clear_color.y * m_clear_color.w,
             m_clear_color.z * m_clear_color.w, m_clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        ImGui::SetNextWindowSize(ImVec2(1280, 960));
+        ImGui::SetNextWindowSize(ImVec2(1280, 960)); // 4:3 resolution of the webcam, my monitor is 16:9
         ImGui::Begin("Viewport");
         const float window_width = ImGui::GetContentRegionAvail().x;
         const float window_height = ImGui::GetContentRegionAvail().y;
-        
+
         // rescale framebuffer and update webcam texture
-        m_framebuffer->Update(m_texture, window_width, window_height);
-        glViewport(0, 0, window_width, window_height);
+        m_framebuffer->Update(m_texture, m_tex_size.first, m_tex_size.second);
+        glViewport(0, 0, m_tex_size.first, m_tex_size.second);
 
         ImVec2 pos = ImGui::GetCursorScreenPos();
         ImGui::GetWindowDrawList()->AddImage(
@@ -58,7 +61,9 @@ namespace gl_cv_app {
 
         // we render on our framebuffer here
         m_framebuffer->Bind();
+        glViewport(0, 0, m_tex_size.first, m_tex_size.second);
         shader.Bind();
+        glBindTexture(GL_TEXTURE_2D, m_texture);
         shader.SetUniform1i("u_Texture", 0);
         glActiveTexture(GL_TEXTURE0);
         this->draw(va, ib, shader);

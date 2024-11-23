@@ -15,8 +15,9 @@ Framebuffer::Framebuffer(unsigned int textureID, unsigned int width, unsigned in
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RBO_ID);
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!\n";
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!\n" << status << std::endl;
 
     Unbind();
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -32,9 +33,9 @@ Framebuffer::~Framebuffer()
 
 void Framebuffer::Update(unsigned int textureID, const float width, const float height)
 {
-	glDeleteTextures(1, &m_TextureID);
-
+    glDeleteTextures(1, &m_TextureID);
     m_TextureID = textureID;
+
     Bind();
 	glBindTexture(GL_TEXTURE_2D, m_TextureID);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_TextureID, 0);

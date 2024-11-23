@@ -7,7 +7,7 @@
 
 namespace gl_cv_app {
 
-    Application::Application() : m_renderer(m_window)
+    Application::Application()
     {
         if (!init())
         {
@@ -16,14 +16,14 @@ namespace gl_cv_app {
         }
     }
 
-    int Application::init()
+    bool Application::init()
     {
     #ifdef _DEBUG
         glfwSetErrorCallback(glfw_error_callback);
         printf("\n\nInitializing\n");
     #endif
         if (!glfwInit())
-            return 0;
+            return false;
 
         auto path = std::filesystem::current_path(); //getting path
         std::filesystem::current_path(path.append("..\\..\\..\\..")); //setting path
@@ -40,9 +40,10 @@ namespace gl_cv_app {
 #endif
 
         // Create window with graphics context
-        m_window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
+        m_window = glfwCreateWindow(1600, 900, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
         if (m_window == nullptr)
-            return 0;
+            return false;
+        m_renderer.init(m_window);
         glfwMakeContextCurrent(m_window);
         glfwSwapInterval(1); // Enable vsync
         if (glewInit() != GLEW_OK) // initialize glew
@@ -80,10 +81,13 @@ namespace gl_cv_app {
         ImFont* font = io.Fonts->AddFontFromMemoryCompressedTTF((const void*)Roboto_Medium_compressed_data, Roboto_Medium_compressed_size, 20);
         m_renderer.setIO(&io);
         GLuint texture = m_webcam.getTexture();
-        m_renderer.setTexture(texture);
+        int w, h;
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
+        m_renderer.setTexture(texture, w, h);
         m_renderer.createFramebuffer(texture);
 
-        return 1;
+        return true;
     }
 
     Application::~Application()
@@ -94,11 +98,25 @@ namespace gl_cv_app {
     void Application::run()
     {
         float positions[] = {
-        -1.0f, -1.0f, 0.0f, 0.0f, // 0 bottom left
-         0.0f, -1.0, 1.0f, 0.0f,  // 1 bottom right
-         0.0f,  1.0f, 1.0f, 1.0f, // 2 top right
-         -1.0f, 1.0f, 0.0f, 1.0f  // 3 top left
+            -0.5f, -0.5f, 0.0f, 0.0f, // 0 bottom left
+             0.5f, -0.5, 1.0f, 0.0f,  // 1 bottom right
+             0.5f,  0.5f, 1.0f, 1.0f, // 2 top right
+             -0.5f, 0.5f, 0.0f, 1.0f  // 3 top left
         };
+
+        //float positions[] = {
+        //    -1.0f, -1.0f, 0.0f, 0.0f, // 0 bottom left
+        //     1.0f, -1.0f, 1.0f, 0.0f,  // 1 bottom right
+        //     1.0f,  1.0f, 1.0f, 1.0f, // 2 top right
+        //     -1.0f, 1.0f, 0.0f, 1.0f  // 3 top left
+        //};
+
+        //float positions[] = {
+        //    -0.01f, -0.01f, 0.0f, 0.0f, // 0 bottom left
+        //     0.01f, -0.01, 1.0f, 0.0f,  // 1 bottom right
+        //     0.01f,  0.01f, 1.0f, 1.0f, // 2 top right
+        //     -0.01f, 0.01f, 0.0f, 1.0f  // 3 top left
+        //};
 
         unsigned int indices[] = {
             0, 1, 2,
@@ -129,7 +147,7 @@ namespace gl_cv_app {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-
+            ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
             m_renderer.setTexture(m_webcam.getTexture());
             m_renderer.render(va, ib, shader);
 

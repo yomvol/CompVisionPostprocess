@@ -17,10 +17,12 @@ namespace gl_cv_app {
 
     class Renderer {
     public:
-        Renderer(GLFWwindow* window);
+        Renderer();
         ~Renderer();
+        void init(GLFWwindow* window);
         void draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
         void render(const VertexArray& va, const IndexBuffer& ib, Shader& shader);
+        void setTexture(GLuint texture, int width, int height) { m_texture = texture; m_tex_size.first = width; m_tex_size.second = height; }
         void setTexture(GLuint texture) { m_texture = texture; }
         void setIO(ImGuiIO* io) { this->m_io = io; }
         void createFramebuffer(GLuint texture);
@@ -28,6 +30,7 @@ namespace gl_cv_app {
     private:
         GLFWwindow* m_window;
         GLuint m_texture;
+        std::pair<int, int> m_tex_size;
         int m_width;
         int m_height;
         std::unique_ptr<Framebuffer> m_framebuffer;

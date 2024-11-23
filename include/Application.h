@@ -30,7 +30,7 @@ namespace gl_cv_app {
         bool m_show_another_window = false;
         WebcamCapture m_webcam;
 
-        int init();
+        bool init();
         void cleanup();
 
 
