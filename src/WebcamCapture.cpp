@@ -23,9 +23,8 @@ namespace gl_cv_app {
         m_capture.release();
     }
 
-    GLuint WebcamCapture::getTexture()
+    GLuint WebcamCapture::getTexture(cv::Mat frame)
     {
-        auto frame = getFrame();
         if (frame.empty())
             return 0;
 

@@ -19,7 +19,7 @@ namespace gl_cv_app {
     bool Application::init()
     {
     #ifdef _DEBUG
-        glfwSetErrorCallback(glfw_error_callback);
+        glfwSetErrorCallback(glfwErrorCallback);
         printf("\n\nInitializing\n");
     #endif
         if (!glfwInit())

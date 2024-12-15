@@ -9,13 +9,10 @@ namespace gl_cv_app {
     public:
         WebcamCapture();
         ~WebcamCapture();
-        GLuint getTexture();
+        cv::Mat getFrame();
 
     private:
         cv::VideoCapture m_capture;
-        GLuint m_texture;
-
-        cv::Mat getFrame();
-
+        
     };
 }

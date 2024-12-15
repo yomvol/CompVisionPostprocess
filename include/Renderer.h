@@ -34,9 +34,10 @@ namespace gl_cv_app {
         int m_width;
         int m_height;
         std::unique_ptr<Framebuffer> m_framebuffer;
-        
         ImGuiIO* m_io;
         ImVec4 m_clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+        ImGuiWindowFlags m_viewport_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse |
+             ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar;
 
         void renderUI();
 

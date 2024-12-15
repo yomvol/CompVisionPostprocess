@@ -31,32 +31,9 @@ namespace gl_cv_app {
             m_clear_color.z * m_clear_color.w, m_clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        ImGui::SetNextWindowSize(ImVec2(1280, 960)); // 4:3 resolution of the webcam, my monitor is 16:9
-        ImGui::Begin("Viewport");
-        const float window_width = ImGui::GetContentRegionAvail().x;
-        const float window_height = ImGui::GetContentRegionAvail().y;
-
-        // rescale framebuffer and update webcam texture
-        m_framebuffer->Update(m_texture, m_tex_size.first, m_tex_size.second);
-        glViewport(0, 0, m_tex_size.first, m_tex_size.second);
-
-        ImVec2 pos = ImGui::GetCursorScreenPos();
-        ImGui::GetWindowDrawList()->AddImage(
-            (void*)m_texture,
-            ImVec2(pos.x, pos.y),
-            ImVec2(pos.x + window_width, pos.y + window_height),
-            ImVec2(0, 1),
-            ImVec2(1, 0)
-        );
-
-        /*GLenum error;
-        while ((error = glGetError()) != GL_NO_ERROR) {
-            std::cout << "OpenGL Error: " << error << std::endl;
-        }*/
-
         // Render UI here
+        renderUI();
 
-        ImGui::End();
         ImGui::Render();
 
         // we render on our framebuffer here
@@ -91,43 +68,50 @@ namespace gl_cv_app {
         m_framebuffer = std::make_unique<Framebuffer>(texture, m_width, m_height);
     }
 
-    //void Renderer::mainCanvas()
-    //{
-    //    ImGui::Begin("FX", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-    //    ImVec2 size(1200.0f, 800.0f);
-    //    ImGui::InvisibleButton("canvas", size);
-    //    ImVec2 p0 = ImGui::GetItemRectMin();
-    //    ImVec2 p1 = ImGui::GetItemRectMax();
-    //    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    void Renderer::renderUI()
+    {
+        ImGui::SetNextWindowSize(ImVec2(1280, 960)); // 4:3 resolution of the webcam, my monitor is 16:9
+        ImGui::Begin("Viewport", nullptr, m_viewport_flags);
+        const float window_width = ImGui::GetContentRegionAvail().x;
+        const float window_height = ImGui::GetContentRegionAvail().y;
 
-    //    //draw_list->PushClipRect(p0, p1);
-    //    //draw_list->AddCallback([](const ImDrawList*, const ImDrawCmd*)
-    //    //    {
-    //    //        ImDrawData* draw_data = ImGui::GetDrawData();
-    //    //        float L = draw_data->DisplayPos.x;
-    //    //        float R = draw_data->DisplayPos.x + draw_data->DisplaySize.x;
-    //    //        float T = draw_data->DisplayPos.y;
-    //    //        float B = draw_data->DisplayPos.y + draw_data->DisplaySize.y;
+        // rescale framebuffer and update webcam texture
+        m_framebuffer->Update(m_texture, m_tex_size.first, m_tex_size.second);
+        glViewport(0, 0, m_tex_size.first, m_tex_size.second);
 
-    //    //        const float ortho_projection[4][4] =
-    //    //        {
-    //    //           { 2.0f / (R - L),   0.0f,         0.0f,   0.0f },
-    //    //           { 0.0f,         2.0f / (T - B),   0.0f,   0.0f },
-    //    //           { 0.0f,         0.0f,        -1.0f,   0.0f },
-    //    //           { (R + L) / (L - R),  (T + B) / (B - T),  0.0f,   1.0f },
-    //    //        };
+        ImVec2 pos = ImGui::GetCursorScreenPos();
+        ImGui::GetWindowDrawList()->AddImage(
+            (void*)m_texture,
+            ImVec2(pos.x, pos.y),
+            ImVec2(pos.x + window_width, pos.y + window_height),
+            ImVec2(0, 1),
+            ImVec2(1, 0)
+        );
+        ImGui::End();
 
-    //    //        //glUseProgram(g_ShaderProgram);
-    //    //        //glUniformMatrix4fv(glGetUniformLocation(g_ShaderProgram, "ProjMtx"), 1, GL_FALSE, &ortho_projection[0][0]);
-    //    //    }, nullptr);
-    //    //draw_list->PushTextureID(ImTextureID(m_texture));
-    //    draw_list->AddImage(ImTextureID(m_texture), p0, p1, ImVec2(0, 0), ImVec2(1, 1));   
-    //    //draw_list->PopTextureID();
-    //    draw_list->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
-    //    //draw_list->PopClipRect();
+        ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoCollapse);
+        
+        if (ImGui::CollapsingHeader("Placeholder 1", ImGuiTreeNodeFlags_None))
+        {
+            ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
+            for (int i = 0; i < 5; i++)
+                ImGui::Text("Some content %d", i);
+        }
 
-    //    ImGui::End();
-    //}
+        if (ImGui::CollapsingHeader("Placeholder 2", ImGuiTreeNodeFlags_None))
+        {
+            ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
+            for (int i = 0; i < 5; i++)
+                ImGui::Text("Some content %d", i);
+        }
+
+        ImGui::End();
+    }
+
+    /*GLenum error;
+        while ((error = glGetError()) != GL_NO_ERROR) {
+            std::cout << "OpenGL Error: " << error << std::endl;
+        }*/
 
     void GLAPIENTRY errorOccurredGL(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message,
         const void* userParam)
