@@ -10,10 +10,15 @@
 #include "IndexBuffer.h"
 #include "Shader.h"
 #include "Framebuffer.h"
+#include "../utils/Event.h"
 
 namespace gl_cv_app {
     void GLAPIENTRY errorOccurredGL(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message,
         const void* userParam);
+
+    /// <summary>
+    /// View component of the application. It is responsible for rendering GUI.
+    /// </summary>
 
     class Renderer {
     public:
@@ -27,6 +32,12 @@ namespace gl_cv_app {
         void setIO(ImGuiIO* io) { this->m_io = io; }
         void createFramebuffer(GLuint texture);
 
+
+        void registerEvent(const std::string& name, std::function<void()> handler);
+        void registerEvent(const std::string& name, std::function<void(bool)> handler);
+
+        void triggerEvent(const std::string& name, bool flag = false);
+
     private:
         GLFWwindow* m_window;
         GLuint m_texture;
@@ -39,7 +50,10 @@ namespace gl_cv_app {
         ImGuiWindowFlags m_viewport_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse |
              ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar;
 
+        std::unordered_map<std::string, utils::Event<bool>> m_events;
+
         void renderUI();
+        
 
     };
 }

@@ -43,7 +43,7 @@ namespace gl_cv_app {
         glBindTexture(GL_TEXTURE_2D, m_texture);
         shader.SetUniform1i("u_Texture", 0);
         glActiveTexture(GL_TEXTURE0);
-        this->draw(va, ib, shader);
+        //this->draw(va, ib, shader);
 
         va.Unbind();
         shader.Unbind();
@@ -90,6 +90,12 @@ namespace gl_cv_app {
         ImGui::End();
 
         ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoCollapse);
+
+        static bool negative = false;
+        if (ImGui::Checkbox("Negative", &negative)) // if pressed
+        {
+            triggerEvent("OnNegativeChanged", negative);
+        }
         
         if (ImGui::CollapsingHeader("Placeholder 1", ImGuiTreeNodeFlags_None))
         {
@@ -106,6 +112,21 @@ namespace gl_cv_app {
         }
 
         ImGui::End();
+    }
+
+    void Renderer::registerEvent(const std::string& name, std::function<void()> handler)
+    {
+        m_events[name] += std::move(static_cast<std::function<void(bool)>>(utils::convert(handler)));
+    }
+
+    void Renderer::registerEvent(const std::string& name, std::function<void(bool)> handler)
+    {
+        m_events[name] += std::move(handler);
+    }
+
+    void Renderer::triggerEvent(const std::string& name, bool flag)
+    {
+        m_events[name](flag);
     }
 
     /*GLenum error;

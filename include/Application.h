@@ -10,6 +10,7 @@ static void glfwErrorCallback(int error, const char* description)
 
 #include "Renderer.h"
 #include "PostProcessingPipeline.h"
+#include "Controller.h"
 
 extern const unsigned int Roboto_Medium_compressed_size;
 extern const unsigned int Roboto_Medium_compressed_data[];
@@ -29,6 +30,7 @@ namespace gl_cv_app {
         bool m_show_demo_window = true;
         bool m_show_another_window = false;
         PostProcessingPipeline m_pipe;
+        Controller m_controller;
 
         bool init();
         void cleanup();
