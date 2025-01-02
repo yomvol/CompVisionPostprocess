@@ -40,7 +40,7 @@ namespace gl_cv_app {
 #endif
 
         // Create window with graphics context
-        m_window = glfwCreateWindow(1600, 900, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
+        m_window = glfwCreateWindow(1600, 900, "Computer Vision effects explorer", nullptr, nullptr);
         if (m_window == nullptr)
             return false;
         m_renderer.init(m_window);
@@ -98,27 +98,6 @@ namespace gl_cv_app {
 
     void Application::run()
     {
-        float positions[] = {
-            -0.5f, -0.5f, 0.0f, 0.0f, // 0 bottom left
-             0.5f, -0.5, 1.0f, 0.0f,  // 1 bottom right
-             0.5f,  0.5f, 1.0f, 1.0f, // 2 top right
-             -0.5f, 0.5f, 0.0f, 1.0f  // 3 top left
-        };
-
-        unsigned int indices[] = {
-            0, 1, 2,
-            2, 3, 0
-        };
-
-        VertexBuffer vb(positions, 4 * 4 * sizeof(float));
-        IndexBuffer ib(indices, 6);
-        VertexArray va;
-        VertexBufferLayout layout;
-        layout.Push<float>(2);
-        layout.Push<float>(2);
-        va.AddBuffer(vb, layout);
-        Shader shader("res\\shaders\\Basic.shader");
-
         // Main loop
         while (!glfwWindowShouldClose(m_window))
         {
@@ -136,7 +115,7 @@ namespace gl_cv_app {
             ImGui::NewFrame();
             ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
             m_controller.view->setTexture(m_controller.model->getTexture());
-            m_controller.view->render(va, ib, shader);
+            m_controller.view->render();
 
             glfwSwapBuffers(m_window);
         }

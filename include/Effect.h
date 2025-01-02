@@ -6,21 +6,28 @@ namespace gl_cv_app {
     // planned effects: negative, contours, channel filter, edge detection, sharpen, grayscale, white balance,
     // chromatic abberation, blur
 
+    class Shader;
+    class PostProcessingPipeline;
+
     class Effect
     {
     public:
         typedef unsigned int uint;
 
-        Effect(uint id, uint priority) : m_id(id), m_priority(priority) {};
+        Effect(uint priority) : m_priority(priority) {};
         virtual ~Effect() { std::cout << "Effect destroyed!\n"; };
-        virtual cv::Mat applyEffect(cv::Mat frame) = 0;
-        static void showDebugWindow(const cv::Mat frame) { cv::imshow("Effect debug", frame); };
+        virtual cv::Mat applyEffect(const cv::Mat& frame) = 0;
+        static void showDebugWindow(const cv::Mat& frame) { cv::imshow("Effect debug", frame); };
         inline uint getPriority() { return m_priority; };
-        inline uint getID() { return m_id; };
+        // inline static uint getID() { return m_id; }; ALWAYS DEFINE THIS GETTER IN DERIVED CLASSES
+
+        virtual bool isUsingCustomShader() = 0;
+        virtual void setUniforms(std::shared_ptr<gl_cv_app::Shader>, PostProcessingPipeline* pipe) {};
+        virtual std::string getShaderPath() { return ""; };
 
     protected:
         uint m_priority; // effects with higher priority are applied first
-        uint m_id;
+        static const uint m_id = 0; // ALWAYS REDEFINE THIS IN DERIVED CLASSES
     };
 
 }

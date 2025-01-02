@@ -16,6 +16,8 @@ namespace gl_cv_app {
     void GLAPIENTRY errorOccurredGL(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message,
         const void* userParam);
 
+    class Controller;
+
     /// <summary>
     /// View component of the application. It is responsible for rendering GUI.
     /// </summary>
@@ -26,17 +28,26 @@ namespace gl_cv_app {
         ~Renderer();
         void init(GLFWwindow* window);
         void draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
-        void render(const VertexArray& va, const IndexBuffer& ib, Shader& shader);
+        void render();
         void setTexture(GLuint texture, int width, int height) { m_texture = texture; m_tex_size.first = width; m_tex_size.second = height; }
         void setTexture(GLuint texture) { m_texture = texture; }
         void setIO(ImGuiIO* io) { this->m_io = io; }
         void createFramebuffer(GLuint texture);
+        std::pair<int, int> getWindowSize();
 
+        typedef struct Events {
+            utils::Event<bool> NegativeChanged;
+            utils::Event<bool> GrayscaleChanged;
+            utils::Event<bool, float> BlurChanged;
+            utils::Event<bool, float, float> EdgesChanged;
+            utils::Event<bool, float, ImVec4, int> ContoursChanged;
+            utils::Event<bool, bool, ImVec4, int, bool> TriangulationChanged;
+            utils::Event<bool, float> DenoisingChanged;
+            utils::Event<bool> AcidChanged;
+        } Events;
+        Events events;
 
-        void registerEvent(const std::string& name, std::function<void()> handler);
-        void registerEvent(const std::string& name, std::function<void(bool)> handler);
-
-        void triggerEvent(const std::string& name, bool flag = false);
+        Controller* controller;
 
     private:
         GLFWwindow* m_window;
@@ -50,10 +61,13 @@ namespace gl_cv_app {
         ImGuiWindowFlags m_viewport_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse |
              ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar;
 
-        std::unordered_map<std::string, utils::Event<bool>> m_events;
+        float m_blur_radius = 0;
+        float m_canny_lower_threshold = 50;
+        float m_canny_upper_threshold = 200;
+        float m_contour_threshold = 0;
+        int m_contour_thickness = 1;
 
         void renderUI();
-        
 
     };
 }
