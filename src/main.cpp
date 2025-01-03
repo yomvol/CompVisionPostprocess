@@ -4,7 +4,7 @@
 
 #include "Application.h"
 
-#if defined(_WIN32) && defined(_RELEASE)
+#if defined(_WIN32) && defined(RELEASE_BUILD)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 #else
 int main()

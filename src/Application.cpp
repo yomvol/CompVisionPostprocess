@@ -18,7 +18,7 @@ namespace gl_cv_app {
 
     bool Application::init()
     {
-    #ifdef _DEBUG
+#ifdef DEBUG_BUILD
         glfwSetErrorCallback(glfwErrorCallback);
         printf("\n\nInitializing\n");
     #endif
@@ -26,7 +26,11 @@ namespace gl_cv_app {
             return false;
 
         auto path = std::filesystem::current_path(); //getting path
+        
+#ifdef DEBUG_BUILD
         std::filesystem::current_path(path.append("..\\..\\..\\..")); //setting path
+#endif
+
         //path = std::filesystem::current_path();
         //std::cout << path << std::endl;
 
@@ -35,7 +39,7 @@ namespace gl_cv_app {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#ifdef _DEBUG
+#ifdef DEBUG_BUILD
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
 
@@ -51,7 +55,7 @@ namespace gl_cv_app {
         std::cout << glGetString(GL_VERSION) << std::endl;
         glEnable(GL_TEXTURE_2D);
 
-#ifdef _DEBUG
+#ifdef DEBUG_BUILD
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(errorOccurredGL, NULL);
 #endif
