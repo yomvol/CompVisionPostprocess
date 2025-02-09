@@ -86,15 +86,27 @@ if (NOT imgui_POPULATED)
 
 find_package( OpenCV REQUIRED HINTS $ENV{OpenCV_DIR})
 
-add_executable(${PROJECT_NAME} WIN32
-    "src/main.cpp" "src/Roboto-Medium.cpp" "src/Application.cpp"
-    "include/Application.h"
-     "include/WebcamCapture.h" "src/WebcamCapture.cpp" "include/Renderer.h" "src/Renderer.cpp"
-     "include/Shader.h" "src/Shader.cpp" "include/IndexBuffer.h" "src/IndexBuffer.cpp"
-    "include/VertexBuffer.h" "src/VertexBuffer.cpp" "include/VertexArray.h" "src/VertexArray.cpp"
-    "include/VertexBufferLayout.h" "include/Framebuffer.h" "src/Framebuffer.cpp"
-     "include/PostProcessingPipeline.h" "src/PostProcessingPipeline.cpp" "include/Effect.h" "include/NegativeEffect.h" "utils/Event.h" "include/Controller.h" "src/Controller.cpp" "include/GrayscaleEffect.h" "include/BlurEffect.h" "include/EdgesEffect.h" "include/ContourEffect.h" "include/TriangulationEffect.h" "include/DenoisingEffect.h" "include/AcidEffect.h"
-)
+if (WIN32_EXECUTABLE AND ${CMAKE_CONFIGURATION_TYPES} STREQUAL "Release")
+    add_executable(${PROJECT_NAME} WIN32
+        "src/main.cpp" "src/Roboto-Medium.cpp" "src/Application.cpp"
+        "include/Application.h"
+         "include/WebcamCapture.h" "src/WebcamCapture.cpp" "include/Renderer.h" "src/Renderer.cpp"
+         "include/Shader.h" "src/Shader.cpp" "include/IndexBuffer.h" "src/IndexBuffer.cpp"
+        "include/VertexBuffer.h" "src/VertexBuffer.cpp" "include/VertexArray.h" "src/VertexArray.cpp"
+        "include/VertexBufferLayout.h" "include/Framebuffer.h" "src/Framebuffer.cpp"
+         "include/PostProcessingPipeline.h" "src/PostProcessingPipeline.cpp" "include/Effect.h" "include/NegativeEffect.h" "utils/Event.h" "include/Controller.h" "src/Controller.cpp" "include/GrayscaleEffect.h" "include/BlurEffect.h" "include/EdgesEffect.h" "include/ContourEffect.h" "include/TriangulationEffect.h" "include/DenoisingEffect.h" "include/AcidEffect.h"
+    )
+else()
+    add_executable(${PROJECT_NAME}
+        "src/main.cpp" "src/Roboto-Medium.cpp" "src/Application.cpp"
+        "include/Application.h"
+         "include/WebcamCapture.h" "src/WebcamCapture.cpp" "include/Renderer.h" "src/Renderer.cpp"
+         "include/Shader.h" "src/Shader.cpp" "include/IndexBuffer.h" "src/IndexBuffer.cpp"
+        "include/VertexBuffer.h" "src/VertexBuffer.cpp" "include/VertexArray.h" "src/VertexArray.cpp"
+        "include/VertexBufferLayout.h" "include/Framebuffer.h" "src/Framebuffer.cpp"
+         "include/PostProcessingPipeline.h" "src/PostProcessingPipeline.cpp" "include/Effect.h" "include/NegativeEffect.h" "utils/Event.h" "include/Controller.h" "src/Controller.cpp" "include/GrayscaleEffect.h" "include/BlurEffect.h" "include/EdgesEffect.h" "include/ContourEffect.h" "include/TriangulationEffect.h" "include/DenoisingEffect.h" "include/AcidEffect.h"
+    )
+endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE imgui ${GLEW_INCLUDE_DIRS} ${INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui libglew_static ${OpenCV_LIBS} $<$<CONFIG:Release>:Kernel32.lib>)
