@@ -22,6 +22,12 @@ namespace gl_cv_app {
         m_capture.release();
     }
 
+    bool WebcamCapture::getIsAlive()
+    {
+        return m_capture.isOpened();
+    }
+
+
     cv::Mat WebcamCapture::getFrame()
     {
         cv::Mat frame;

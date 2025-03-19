@@ -33,13 +33,14 @@ namespace gl_cv_app {
         PostProcessingPipeline();
         ~PostProcessingPipeline();
         GLuint getTexture();
-        GLuint getPrevTexture() { return m_prev_texture; };
+        GLuint getPrevTexture() { return m_prev_texture; }
         void addEffect(const std::shared_ptr<Effect> effect);
         void removeEffect(const std::shared_ptr<Effect> effect);
         std::shared_ptr<Shader> getShaderIfAny();
-        float getTime() { return glfwGetTime(); };
+        float getTime() { return glfwGetTime(); }
         std::pair<float, float> getResolution();
-        void setResolution(std::pair<int, int> res) { m_resolution = res; };
+        void setResolution(std::pair<int, int> res) { m_resolution = res; }
+        bool getIsAliveAndWell() { return m_webcam.getIsAlive(); }
 
     private:
         WebcamCapture m_webcam;

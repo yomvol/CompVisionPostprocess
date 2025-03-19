@@ -6,35 +6,35 @@
 namespace gl_cv_app {
     struct ShaderProgramSource
     {
-        std::string VertexSource;
-        std::string FragmentSource;
+        std::string vertex_source;
+        std::string fragment_source;
     };
 
     class Shader
     {
     private:
-        unsigned int m_RendererID;
-        std::string m_FilePath;
-        std::unordered_map<std::string, int> m_UniformLocationCache;
-        int GetUniformLocation(const std::string& name);
-        unsigned int CompileShader(unsigned int type, const std::string& source);
-        unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
-        ShaderProgramSource ParseShader();
+        unsigned int m_renderer_id;
+        std::string m_file_path;
+        std::unordered_map<std::string, int> m_uniform_location_cache;
+        int getUniformLocation(const std::string& name);
+        unsigned int compileShader(unsigned int type, const std::string& source);
+        unsigned int createShader(const std::string& vertex_shader, const std::string& fragment_shader);
+        ShaderProgramSource parseShader();
 
     public:
         Shader(const std::string& filepath);
         ~Shader();
 
-        void Bind() const;
-        void Unbind() const;
+        void bind() const;
+        void unbind() const;
 
-        GLuint getID() { return m_RendererID; }
+        GLuint getID() const { return m_renderer_id; }
 
         // Set uniforms
-        void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
-        void SetUniform1f(const std::string& name, float value);
-        void SetUniform1i(const std::string& name, int value);
-        void SetUniform2f(const std::string& name, float v0, float v1);
+        void setUniform4F(const std::string& name, float v0, float v1, float v2, float v3);
+        void setUniform1F(const std::string& name, float value);
+        void setUniform1I(const std::string& name, int value);
+        void setUniform2F(const std::string& name, float v0, float v1);
     };
 
 }

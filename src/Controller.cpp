@@ -42,14 +42,42 @@ namespace gl_cv_app
     
     }
 
+    bool Controller::checkIfConflicts(unsigned int id)
+    {
+        for (const auto& [key, value] : m_active_effects)
+        {
+            if (conflict_matrix[id][key])
+                return true;
+        }
+
+        return false;
+    }
+
     template <typename TEffect>
     void Controller::onBoolChanged(bool flag)
     {
         if (flag)
         {
+            auto id = TEffect::getID();
+            if (checkIfConflicts(id))
+            {
+                view->setIsShowingConflict(true);
+                switch (id)
+                {
+                case 0:
+                    Renderer::UIState::isNegative = false;
+                    break;
+                case 1:
+                    Renderer::UIState::isGrayscale = false;
+                    break;
+                default:
+                    throw;
+                }
+                return;
+            }
             auto effect_ptr = std::make_shared<TEffect>();
             model->addEffect(effect_ptr);
-            m_active_effects.insert({ TEffect::getID(), effect_ptr});
+            m_active_effects.insert({ id, effect_ptr});
         }
         else
         {
@@ -61,36 +89,54 @@ namespace gl_cv_app
 
     void Controller::onBlurChanged(bool flag, float radius)
     {
+        auto id = BlurEffect::getID();
+
         if (flag)
         {
+            if (checkIfConflicts(id))
+            {
+                view->setIsShowingConflict(true);
+                Renderer::UIState::isBlur = false;
+                return;
+            }
+
             int kernel_size = 2 * static_cast<int>(radius) + 1;
             double sigma = static_cast<double>(radius) / 3.0;
             auto blur = std::make_shared<BlurEffect>(kernel_size, sigma);
             
-            if (m_active_effects.insert({ BlurEffect::getID(), blur}).second == true)
+            if (m_active_effects.insert({ id, blur}).second == true)
                 model->addEffect(blur);
             else
             {
-                auto res = m_active_effects[BlurEffect::getID()];
+                auto& res = m_active_effects[id];
                 model->removeEffect(res);
-                m_active_effects.erase(BlurEffect::getID());
-                m_active_effects.insert({ BlurEffect::getID(), blur });
+                m_active_effects.erase(id);
+                m_active_effects.insert({ id, blur });
                 model->addEffect(blur);
             }
         }
         else
         {
-            auto res = m_active_effects[BlurEffect::getID()];
+            auto& res = m_active_effects[id];
             model->removeEffect(res);
-            m_active_effects.erase(BlurEffect::getID());
+            m_active_effects.erase(id);
         }
     }
 
     void Controller::onEdgesChanged(bool flag, float lower_threshold, float upper_threshold)
     {
+        auto id = EdgesEffect::getID();
+
         if (flag)
         {
-            auto iter = m_active_effects.find(EdgesEffect::getID());
+            if (checkIfConflicts(id))
+            {
+                view->setIsShowingConflict(true);
+                Renderer::UIState::isEdges = false;
+                return;
+            }
+
+            auto iter = m_active_effects.find(id);
             if (iter != m_active_effects.end())
             {
                 dynamic_cast<EdgesEffect&>(*(iter->second)).setThresholds((double)lower_threshold, (double)upper_threshold);
@@ -99,81 +145,108 @@ namespace gl_cv_app
             {
                 auto edges = std::make_shared<EdgesEffect>((double)lower_threshold, (double)upper_threshold);
                 model->addEffect(edges);
-                m_active_effects.insert({ EdgesEffect::getID(), edges });
+                m_active_effects.insert({ id, edges });
             }
         }
         else
         {
-            auto res = m_active_effects[EdgesEffect::getID()];
+            auto& res = m_active_effects[id];
             model->removeEffect(res);
-            m_active_effects.erase(EdgesEffect::getID());
+            m_active_effects.erase(id);
         }
     }
 
     void Controller::onCountoursChanged(bool flag, float threshold, ImVec4 color, int thickness)
     {
+        auto id = ContourEffect::getID();
         cv::Scalar color_byte;
         cv::normalize(cv::Scalar(color.x, color.y, color.z, 1.0f), color_byte, 0, 255, cv::NORM_MINMAX);
 
         if (flag)
         {
-            auto iter = m_active_effects.find(ContourEffect::getID());
+            if (checkIfConflicts(id))
+            {
+                view->setIsShowingConflict(true);
+                Renderer::UIState::isContours = false;
+                return;
+            }
+
+            auto iter = m_active_effects.find(id);
             if (iter != m_active_effects.end())
             {
-                dynamic_cast<ContourEffect&>(*(iter->second)).setThreshold((double)threshold);
-                dynamic_cast<ContourEffect&>(*(iter->second)).setColor(color_byte);
-                dynamic_cast<ContourEffect&>(*(iter->second)).setThickness(thickness);
+                auto& ref = dynamic_cast<ContourEffect&>(*(iter->second));
+                ref.setThreshold((double)threshold);
+                ref.setColor(color_byte);
+                ref.setThickness(thickness);
             }
             else
             {
                 auto contours = std::make_shared<ContourEffect>((double)threshold, color_byte, thickness);
                 model->addEffect(contours);
-                m_active_effects.insert({ ContourEffect::getID(), contours });
+                m_active_effects.insert({ id, contours });
             }
         }
         else
         {
-            auto res = m_active_effects[ContourEffect::getID()];
+            auto& res = m_active_effects[id];
             model->removeEffect(res);
-            m_active_effects.erase(ContourEffect::getID());
+            m_active_effects.erase(id);
         }
     }
 
     void Controller::onTriangulationChanged(bool flag, bool delaunay, ImVec4 color, int threshold, bool is_drawing_centers)
     {
+        auto id = TriangulationEffect::getID();
         cv::Scalar color_byte;
         cv::normalize(cv::Scalar(color.x, color.y, color.z, 1.0f), color_byte, 0, 255, cv::NORM_MINMAX);
 
         if (flag)
         {
-            auto iter = m_active_effects.find(TriangulationEffect::getID());
+            if (checkIfConflicts(id))
+            {
+                view->setIsShowingConflict(true);
+                Renderer::UIState::isTriangulation = false;
+                return;
+            }
+
+            auto iter = m_active_effects.find(id);
             if (iter != m_active_effects.end())
             {
-                dynamic_cast<TriangulationEffect&>(*(iter->second)).setDelaunay(delaunay);
-                dynamic_cast<TriangulationEffect&>(*(iter->second)).setColor(color_byte);
-                dynamic_cast<TriangulationEffect&>(*(iter->second)).setThreshold(threshold);
-                dynamic_cast<TriangulationEffect&>(*(iter->second)).setDrawingCenters(is_drawing_centers);
+                auto& ref = dynamic_cast<TriangulationEffect&>(*(iter->second));
+                ref.setDelaunay(delaunay);
+                ref.setColor(color_byte);
+                ref.setThreshold(threshold);
+                ref.setDrawingCenters(is_drawing_centers);
             }
             else
             {
                 auto triangulation = std::make_shared<TriangulationEffect>(delaunay, color_byte, threshold, is_drawing_centers);
                 model->addEffect(triangulation);
-                m_active_effects.insert({ TriangulationEffect::getID(), triangulation });
+                m_active_effects.insert({ id, triangulation });
             }
         }
         else
         {
-            auto res = m_active_effects[TriangulationEffect::getID()];
+            auto res = m_active_effects[id];
             model->removeEffect(res);
-            m_active_effects.erase(TriangulationEffect::getID());
+            m_active_effects.erase(id);
         }
     }
 
     void Controller::onDenoisingChanged(bool flag, float strength)
     {
+        auto id = DenoisingEffect::getID();
+
         if (flag)
         {
-            auto iter = m_active_effects.find(DenoisingEffect::getID());
+            if (checkIfConflicts(id))
+            {
+                view->setIsShowingConflict(true);
+                Renderer::UIState::isDenoising = false;
+                return;
+            }
+
+            auto iter = m_active_effects.find(id);
             if (iter != m_active_effects.end())
             {
                 dynamic_cast<DenoisingEffect&>(*(iter->second)).setFilterStrength(strength);
@@ -182,71 +255,41 @@ namespace gl_cv_app
             {
                 auto denoising = std::make_shared<DenoisingEffect>(strength);
                 model->addEffect(denoising);
-                m_active_effects.insert({ DenoisingEffect::getID(), denoising });
+                m_active_effects.insert({ id, denoising });
             }
         }
         else
         {
-            auto res = m_active_effects[DenoisingEffect::getID()];
+            auto res = m_active_effects[id];
             model->removeEffect(res);
-            m_active_effects.erase(DenoisingEffect::getID());
+            m_active_effects.erase(id);
         }
     }
 
     void Controller::onAcidChanged(bool flag)
     {
+        auto id = AcidEffect::getID();
         model->setResolution(view->getWindowSize());
 
         if (flag)
         {
+            if (checkIfConflicts(id))
+            {
+                view->setIsShowingConflict(true);
+                Renderer::UIState::isAcid = false;
+                return;
+            }
+
             auto effect_ptr = std::make_shared<AcidEffect>();
             model->addEffect(effect_ptr);
-            m_active_effects.insert({ AcidEffect::getID(), effect_ptr });
+            m_active_effects.insert({ id, effect_ptr });
         }
         else
         {
-            auto res = m_active_effects[AcidEffect::getID()];
+            auto res = m_active_effects[id];
             model->removeEffect(res);
-            m_active_effects.erase(AcidEffect::getID());
+            m_active_effects.erase(id);
         }
     }
-
-    /*void Controller::OnNegativeChanged(bool flag)
-    {
-        if (flag)
-        {
-            auto neg = std::make_shared<NegativeEffect>(m_ID_counter);
-            model->addEffect(neg);
-            m_active_effects.insert({m_ID_counter, neg});
-            m_ID_counter++;
-        }
-        else
-        {
-            auto res = m_active_effects[NegativeEffect::getID()];
-            model->removeEffect(res);
-            m_active_effects.erase(NegativeEffect::getID());
-        }
-    }*/
-
-    /*void Controller::OnGrayscaleChanged(bool flag)
-    {
-        if (flag)
-        {
-            auto gray = std::make_shared<GrayscaleEffect>(1);
-            model->addEffect(gray);
-            m_active_effects.push_back(gray);
-        }
-        else
-        {
-            auto res = std::find_if(m_active_effects.begin(), m_active_effects.end(), [](const std::shared_ptr<Effect>& effect) {
-                return effect->getID() == 1;
-                });
-            if (res != m_active_effects.end())
-            {
-                model->removeEffect(*res);
-                m_active_effects.erase(res);
-            }
-        }
-    }*/
     
 }

@@ -27,14 +27,6 @@ GLuint gl_cv_app::PostProcessingPipeline::getTexture()
     //if (m_prev_texture != -1) glDeleteTextures(1, &m_prev_texture); // OpenGL is very fragile
     //if (m_prev_texture == -1) m_prev_texture = m_texture;
 
-    /*static int i = 0;
-    i++;
-    if (i == 10)
-    {
-        i = 0;
-        
-    }*/
-
     m_prev_texture = m_texture;
 
     glGenTextures(1, &m_texture);

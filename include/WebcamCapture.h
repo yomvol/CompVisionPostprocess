@@ -8,9 +8,9 @@ namespace gl_cv_app {
         WebcamCapture();
         ~WebcamCapture();
         cv::Mat getFrame();
+        bool getIsAlive();
 
     private:
         cv::VideoCapture m_capture;
-        
     };
 }

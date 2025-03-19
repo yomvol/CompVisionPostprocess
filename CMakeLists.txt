@@ -86,7 +86,7 @@ if (NOT imgui_POPULATED)
 
 find_package( OpenCV REQUIRED HINTS $ENV{OpenCV_DIR})
 
-if (WIN32_EXECUTABLE AND ${CMAKE_CONFIGURATION_TYPES} STREQUAL "Release")
+if (WIN32 AND ${CMAKE_CONFIGURATION_TYPES} STREQUAL "Release")
     add_executable(${PROJECT_NAME} WIN32
         "src/main.cpp" "src/Roboto-Medium.cpp" "src/Application.cpp"
         "include/Application.h"
