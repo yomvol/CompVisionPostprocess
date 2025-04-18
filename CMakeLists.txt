@@ -86,7 +86,7 @@ if (NOT imgui_POPULATED)
 
 find_package( OpenCV REQUIRED HINTS $ENV{OpenCV_DIR})
 
-if (WIN32_EXECUTABLE AND ${CMAKE_CONFIGURATION_TYPES} STREQUAL "Release")
+if (WIN32 AND ${CMAKE_CONFIGURATION_TYPES} STREQUAL "Release")
     add_executable(${PROJECT_NAME} WIN32
         "src/main.cpp" "src/Roboto-Medium.cpp" "src/Application.cpp"
         "include/Application.h"
@@ -95,7 +95,7 @@ if (WIN32_EXECUTABLE AND ${CMAKE_CONFIGURATION_TYPES} STREQUAL "Release")
         "include/VertexBuffer.h" "src/VertexBuffer.cpp" "include/VertexArray.h" "src/VertexArray.cpp"
         "include/VertexBufferLayout.h" "include/Framebuffer.h" "src/Framebuffer.cpp"
          "include/PostProcessingPipeline.h" "src/PostProcessingPipeline.cpp" "include/Effect.h" "include/NegativeEffect.h" "utils/Event.h" "include/Controller.h" "src/Controller.cpp" "include/GrayscaleEffect.h" "include/BlurEffect.h" "include/EdgesEffect.h" "include/ContourEffect.h" "include/TriangulationEffect.h" "include/DenoisingEffect.h" "include/AcidEffect.h"
-    )
+     "include/ChromaticAberrationEffect.h")
 else()
     add_executable(${PROJECT_NAME}
         "src/main.cpp" "src/Roboto-Medium.cpp" "src/Application.cpp"

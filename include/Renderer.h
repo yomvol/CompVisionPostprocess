@@ -21,7 +21,6 @@ namespace gl_cv_app {
     /// <summary>
     /// View component of the application. It is responsible for rendering GUI.
     /// </summary>
-
     class Renderer {
     public:
         Renderer();
@@ -34,6 +33,9 @@ namespace gl_cv_app {
         void setIO(ImGuiIO* io) { this->m_io = io; }
         void createFramebuffer(GLuint texture);
         std::pair<int, int> getWindowSize();
+        void setIsShowingConflict(bool flag) { m_is_showing_conflict = flag; }
+        void setNoCamError() { m_is_no_cam_error = true; }
+        bool getNoCamError() { return m_is_no_cam_error; }
 
         typedef struct Events {
             utils::Event<bool> NegativeChanged;
@@ -44,10 +46,26 @@ namespace gl_cv_app {
             utils::Event<bool, bool, ImVec4, int, bool> TriangulationChanged;
             utils::Event<bool, float> DenoisingChanged;
             utils::Event<bool> AcidChanged;
+            utils::Event<bool, float, float, float> AberrationChanged;
         } Events;
         Events events;
 
         Controller* controller;
+
+        class UIState
+        {
+        public:
+            UIState() = delete;
+            static bool isNegative;
+            static bool isGrayscale;
+            static bool isBlur;
+            static bool isEdges;
+            static bool isContours;
+            static bool isTriangulation;
+            static bool isDenoising;
+            static bool isAcid;
+            static bool isAberration;
+        };
 
     private:
         GLFWwindow* m_window;
@@ -66,8 +84,11 @@ namespace gl_cv_app {
         float m_canny_upper_threshold = 200;
         float m_contour_threshold = 0;
         int m_contour_thickness = 1;
+        
+        bool m_is_showing_conflict = false;
+        bool m_is_no_cam_error = false;
 
         void renderUI();
-
+        void showConflictMsg();
     };
 }

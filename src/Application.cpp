@@ -1,5 +1,6 @@
 #include "Application.h"
 #include <filesystem>
+#include <thread>
 
 #include "VertexArray.h"
 #include "IndexBuffer.h"
@@ -28,7 +29,7 @@ namespace gl_cv_app {
         auto path = std::filesystem::current_path(); //getting path
         
 #ifdef DEBUG_BUILD
-        std::filesystem::current_path(path.append("..\\..\\..\\..")); //setting path
+        std::filesystem::current_path(path.append(R"(..\..\..\..)")); //setting path
 #endif
 
         //path = std::filesystem::current_path();
@@ -64,7 +65,6 @@ namespace gl_cv_app {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
-        //(void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
@@ -85,6 +85,11 @@ namespace gl_cv_app {
         ImFont* font = io.Fonts->AddFontFromMemoryCompressedTTF((const void*)Roboto_Medium_compressed_data, Roboto_Medium_compressed_size, 20);
         m_renderer.setIO(&io);
 
+        if (!m_pipe.getIsAliveAndWell())
+        {
+            return true;
+        }
+
         GLuint texture = m_controller.model->getTexture();
         int w, h;
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
@@ -103,7 +108,7 @@ namespace gl_cv_app {
     void Application::run()
     {
         // Main loop
-        while (!glfwWindowShouldClose(m_window))
+        while (!glfwWindowShouldClose(m_window) && !m_should_close)
         {
             // Poll and handle events (inputs, window resize, etc.)
             glfwPollEvents();
@@ -113,15 +118,42 @@ namespace gl_cv_app {
                 continue;
             }
 
-            // Start the Dear ImGui frame
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-            ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
-            m_controller.view->setTexture(m_controller.model->getTexture());
-            m_controller.view->render();
+            if (!m_pipe.getIsAliveAndWell())
+            {
+                // Start the Dear ImGui frame
+                ImGui_ImplOpenGL3_NewFrame();
+                ImGui_ImplGlfw_NewFrame();
+                ImGui::NewFrame();
+                ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
-            glfwSwapBuffers(m_window);
+                if (!m_renderer.getNoCamError())
+                {
+                    std::chrono::seconds delay(5);
+                    auto destroyTimerHandler = [this]() { m_should_close = true; };
+
+                    std::thread([delay, destroyTimerHandler]() {
+                        std::this_thread::sleep_for(delay);
+                        destroyTimerHandler();
+                        }).detach();
+                }
+
+                m_renderer.setNoCamError();
+                m_renderer.render();
+                glfwSwapBuffers(m_window);
+            }
+            else
+            {
+                // Start the Dear ImGui frame
+                ImGui_ImplOpenGL3_NewFrame();
+                ImGui_ImplGlfw_NewFrame();
+                ImGui::NewFrame();
+                ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+
+                m_controller.view->setTexture(m_controller.model->getTexture());
+                m_controller.view->render();
+
+                glfwSwapBuffers(m_window);
+            }
         }
     }
 

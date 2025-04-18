@@ -27,13 +27,12 @@ namespace gl_cv_app {
     private:
         GLFWwindow* m_window;
         Renderer m_renderer;
-        bool m_show_demo_window = true;
-        bool m_show_another_window = false;
         PostProcessingPipeline m_pipe;
         Controller m_controller;
 
         bool init();
         void cleanup();
 
+        bool m_should_close = false;
     };
 }

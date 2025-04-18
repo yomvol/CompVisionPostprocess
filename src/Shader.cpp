@@ -5,18 +5,18 @@
 
 namespace gl_cv_app {
 
-    Shader::Shader(const std::string& filepath) : m_FilePath(filepath), m_RendererID(0)
+    Shader::Shader(const std::string& filepath) : m_file_path(filepath), m_renderer_id(0)
     {
-        ShaderProgramSource source = ParseShader();
-        m_RendererID = CreateShader(source.VertexSource, source.FragmentSource);
+        ShaderProgramSource source = parseShader();
+        m_renderer_id = createShader(source.vertex_source, source.fragment_source);
     }
 
     Shader::~Shader()
     {
-        glDeleteProgram(m_RendererID);
+        glDeleteProgram(m_renderer_id);
     }
 
-    unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
+    unsigned int Shader::compileShader(unsigned int type, const std::string& source)
     {
         unsigned int id = glCreateShader(type);
         const char* src = source.c_str();
@@ -41,9 +41,9 @@ namespace gl_cv_app {
         return id;
     }
 
-    ShaderProgramSource Shader::ParseShader()
+    ShaderProgramSource Shader::parseShader()
     {
-        std::fstream stream(m_FilePath);
+        std::fstream stream(m_file_path);
 
         enum class ShaderType
         {
@@ -71,11 +71,11 @@ namespace gl_cv_app {
         return { ss[0].str(), ss[1].str() };
     }
 
-    unsigned int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
+    unsigned int Shader::createShader(const std::string& vertex_shader, const std::string& fragment_shader)
     {
         unsigned int program = glCreateProgram();
-        unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
-        unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
+        unsigned int vs = compileShader(GL_VERTEX_SHADER, vertex_shader);
+        unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragment_shader);
 
         glAttachShader(program, vs);
         glAttachShader(program, fs);
@@ -88,46 +88,51 @@ namespace gl_cv_app {
         return program;
     }
 
-    void Shader::Bind() const
+    void Shader::bind() const
     {
-        glUseProgram(m_RendererID);
+        glUseProgram(m_renderer_id);
     }
 
-    void Shader::Unbind() const
+    void Shader::unbind() const
     {
         glUseProgram(0);
     }
 
-    void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
+    void Shader::setUniform4F(const std::string& name, float v0, float v1, float v2, float v3)
     {
-        glUniform4f(GetUniformLocation(name), v0, v1, v2, v3);
+        glUniform4f(getUniformLocation(name), v0, v1, v2, v3);
     }
 
-    void Shader::SetUniform1f(const std::string& name, float value)
+    void Shader::setUniform1F(const std::string& name, float value)
     {
-        glUniform1f(GetUniformLocation(name), value);
+        glUniform1f(getUniformLocation(name), value);
 
     }
 
-    void Shader::SetUniform1i(const std::string& name, int value)
+    void Shader::setUniform1I(const std::string& name, int value)
     {
-        glUniform1i(GetUniformLocation(name), value);
+        glUniform1i(getUniformLocation(name), value);
     }
 
-    void Shader::SetUniform2f(const std::string& name, float v0, float v1)
+    void Shader::setUniform2F(const std::string& name, float v0, float v1)
     {
-        glUniform2f(GetUniformLocation(name), v0, v1);
+        glUniform2f(getUniformLocation(name), v0, v1);
     }
 
-    int Shader::GetUniformLocation(const std::string& name)
+    void Shader::setUniform3F(const std::string& name, float v0, float v1, float v2)
     {
-        if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
-            return m_UniformLocationCache[name];
+        glUniform3f(getUniformLocation(name), v0, v1, v2);
+    }
 
-        int location = glGetUniformLocation(m_RendererID, name.c_str());
+    int Shader::getUniformLocation(const std::string& name)
+    {
+        if (m_uniform_location_cache.find(name) != m_uniform_location_cache.end())
+            return m_uniform_location_cache[name];
+
+        int location = glGetUniformLocation(m_renderer_id, name.c_str());
         if (location == -1)
             std::cout << "Warning: uniform '" << name << "' doesn't exist!" << std::endl;
-        m_UniformLocationCache[name] = location;
+        m_uniform_location_cache[name] = location;
         return location;
     }
 }

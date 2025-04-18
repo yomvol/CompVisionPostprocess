@@ -4,6 +4,18 @@
 
 namespace gl_cv_app {
 
+#pragma region UIState
+    bool Renderer::UIState::isNegative = false;
+    bool Renderer::UIState::isGrayscale = false;
+    bool Renderer::UIState::isBlur = false;
+    bool Renderer::UIState::isEdges = false;
+    bool Renderer::UIState::isContours = false;
+    bool Renderer::UIState::isTriangulation = false;
+    bool Renderer::UIState::isDenoising = false;
+    bool Renderer::UIState::isAcid = false;
+    bool Renderer::UIState::isAberration = false;
+#pragma endregion
+
     Renderer::Renderer() : m_texture(0), m_tex_size(0, 0) {}
 
     Renderer::~Renderer()
@@ -19,11 +31,11 @@ namespace gl_cv_app {
 
     void Renderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const
     {
-        shader.Bind();
-        va.Bind();
-        ib.Bind();
+        shader.bind();
+        va.bind();
+        ib.bind();
 
-        glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, nullptr);
     }
 
     void Renderer::render()
@@ -32,13 +44,28 @@ namespace gl_cv_app {
             m_clear_color.z * m_clear_color.w, m_clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Render UI here
         renderUI();
-
         ImGui::Render();
 
+        if (m_is_no_cam_error)
+        {
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+            // Update and Render additional Platform Windows
+            // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+            //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+            if (m_io->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            {
+                GLFWwindow* backup_current_context = glfwGetCurrentContext();
+                ImGui::UpdatePlatformWindows();
+                ImGui::RenderPlatformWindowsDefault();
+                glfwMakeContextCurrent(backup_current_context);
+            }
+
+            return;
+        }
+
         // we render on our framebuffer here
-        // do we even need to use a shader?
         std::shared_ptr<Shader> shader;
         bool is_custom_shader = controller->isUsingCustomShader(shader);
         if (is_custom_shader)
@@ -61,21 +88,20 @@ namespace gl_cv_app {
             VertexBufferLayout layout;
             layout.Push<float>(2);
             layout.Push<float>(2);
-            va.AddBuffer(vb, layout);
-            //Shader shader("res\\shaders\\Basic.shader");
+            va.addBuffer(vb, layout);
 
-            m_framebuffer->Bind();
+            m_framebuffer->bind();
             glViewport(0, 0, m_tex_size.first, m_tex_size.second);
-            shader->Bind();
+            shader->bind();
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, m_texture);
-            shader->SetUniform1i("u_Texture", 0);
+            shader->setUniform1I("u_Texture", 0);
 
             this->draw(va, ib, *shader);
 
-            va.Unbind();
-            shader->Unbind();
-            m_framebuffer->Unbind();
+            va.unbind();
+            shader->unbind();
+            m_framebuffer->unbind();
         }
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -103,15 +129,40 @@ namespace gl_cv_app {
         return { m_width, m_height };
     }
 
+    void Renderer::showConflictMsg()
+    {
+        ImGui::OpenPopup("Conflict");
+        if (ImGui::BeginPopupModal("Conflict", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("You cannot apply this effect because it conflicts with another effect.\nPlease disable all other effects.");
+            if (ImGui::Button("OK", ImVec2(120, 0))) { m_is_showing_conflict = false; ImGui::CloseCurrentPopup(); }
+            ImGui::EndPopup();
+        }
+    }
+
     void Renderer::renderUI()
     {
+        if (m_is_no_cam_error)
+        {
+            ImGui::SetNextWindowPos(ImVec2(700, 400));
+            ImGui::SetNextWindowSize(ImVec2(640, 360));
+            ImGui::Begin("Error", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            ImGui::Text("No webcam detected. Please connect a webcam and restart the application.");
+            ImGui::End();
+            return;
+        }
+
         ImGui::SetNextWindowSize(ImVec2(1280, 960)); // 4:3 resolution of the webcam, my monitor is 16:9
         ImGui::Begin("Viewport", nullptr, m_viewport_flags);
         const float window_width = ImGui::GetContentRegionAvail().x;
         const float window_height = ImGui::GetContentRegionAvail().y;
+        ImGui::Text("FPS: %.1f", 1.0f / m_io->DeltaTime);
+        //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / m_io->Framerate, m_io->Framerate);
+
+        if (m_is_showing_conflict) showConflictMsg();
 
         // rescale framebuffer and update webcam texture
-        m_framebuffer->Update(m_texture, m_tex_size.first, m_tex_size.second);
+        m_framebuffer->update(m_texture, m_tex_size.first, m_tex_size.second);
         glViewport(0, 0, m_tex_size.first, m_tex_size.second);
 
         ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -126,107 +177,99 @@ namespace gl_cv_app {
 
         ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_NoCollapse);
 
-        static bool negative = false;
-        if (ImGui::Checkbox("Negative", &negative)) // if pressed
+        if (ImGui::Checkbox("Negative", &UIState::isNegative)) // if pressed
         {
-            events.NegativeChanged(negative);
+            events.NegativeChanged(UIState::isNegative);
         }
 
-        static bool grayscale = false;
-        if (ImGui::Checkbox("Grayscale", &grayscale)) // if pressed
+        if (ImGui::Checkbox("Grayscale", &UIState::isGrayscale)) // if pressed
         {
-            events.GrayscaleChanged(grayscale);
+            events.GrayscaleChanged(UIState::isGrayscale);
         }
         
-        static bool blur = false;
         if (ImGui::CollapsingHeader("Gaussian Blur", ImGuiTreeNodeFlags_None))
         {
             ImGui::PushID("Gaussian Blur");
-            if (ImGui::Checkbox("Enable", &blur))
+            if (ImGui::Checkbox("Enable", &UIState::isBlur))
             {
-                events.BlurChanged(blur, m_blur_radius);
+                events.BlurChanged(UIState::isBlur, m_blur_radius);
             }
             
             if (ImGui::SliderFloat("Blur radius", &m_blur_radius, 0.0f, 10.0f))
             {
-                events.BlurChanged(blur, m_blur_radius);
+                events.BlurChanged(UIState::isBlur, m_blur_radius);
             }
             ImGui::PopID();
         }
 
-        static bool is_denoising = false;
         static float denoising_strength = 75.0f;
-
         if (ImGui::CollapsingHeader("Denoising", ImGuiTreeNodeFlags_None))
         {
             ImGui::PushID("Denoising");
-            if (ImGui::Checkbox("Enable", &is_denoising))
+            if (ImGui::Checkbox("Enable", &UIState::isDenoising))
             {
-                events.DenoisingChanged(is_denoising, denoising_strength);
+                events.DenoisingChanged(UIState::isDenoising, denoising_strength);
             }
 
             if (ImGui::SliderFloat("Filter strength", &denoising_strength, 0.0f, 200.0f))
             {
-                events.DenoisingChanged(is_denoising, denoising_strength);
+                events.DenoisingChanged(UIState::isDenoising, denoising_strength);
             }
             ImGui::SetItemTooltip("Strength of the denoising filter. Higher values mean more aggressive denoising.");
             ImGui::PopID();
         }
 
-        static bool edges = false;
         if (ImGui::CollapsingHeader("Canny Edge Detection", ImGuiTreeNodeFlags_None))
         {
             ImGui::PushID("Canny Edge Detection");
-            if (ImGui::Checkbox("Enable", &edges))
+            if (ImGui::Checkbox("Enable", &UIState::isEdges))
             {
-                events.EdgesChanged(edges, m_canny_lower_threshold, m_canny_upper_threshold);
+                events.EdgesChanged(UIState::isEdges, m_canny_lower_threshold, m_canny_upper_threshold);
             }
 
             if (ImGui::SliderFloat("Lower threshold", &m_canny_lower_threshold, 0.0f, 100.0f))
             {
-                events.EdgesChanged(edges, m_canny_lower_threshold, m_canny_upper_threshold);
+                events.EdgesChanged(UIState::isEdges, m_canny_lower_threshold, m_canny_upper_threshold);
             }
             ImGui::SetItemTooltip("If a pixel gradient value is below the lower threshold, then it is rejected.");
 
             if (ImGui::SliderFloat("Upper threshold", &m_canny_upper_threshold, 100.0f, 200.0f))
             {
-                events.EdgesChanged(edges, m_canny_lower_threshold, m_canny_upper_threshold);
+                events.EdgesChanged(UIState::isEdges, m_canny_lower_threshold, m_canny_upper_threshold);
             }
             ImGui::SetItemTooltip("If a pixel gradient is higher than the upper threshold, the pixel is accepted as an edge.\nIf the pixel gradient is between the two thresholds, then it will be accepted only if it is connected to a pixel that is above the upper threshold.");
             ImGui::PopID();
         }
 
-        static bool contours = false;
         static ImVec4 contour_color = ImVec4(0.5f, 0.0f, 1.0f, 1.0f);
         if (ImGui::CollapsingHeader("Find Contours", ImGuiTreeNodeFlags_None))
         {
             ImGui::PushID("Find Contours");
-            if (ImGui::Checkbox("Enable", &contours))
+            if (ImGui::Checkbox("Enable", &UIState::isContours))
             {
-                events.ContoursChanged(contours, m_contour_threshold, contour_color, m_contour_thickness);
+                events.ContoursChanged(UIState::isContours, m_contour_threshold, contour_color, m_contour_thickness);
             }
 
             if (ImGui::SliderFloat("Threshold", &m_contour_threshold, 0.0f, 255.0f))
             {
-                events.ContoursChanged(contours, m_contour_threshold, contour_color, m_contour_thickness);
+                events.ContoursChanged(UIState::isContours, m_contour_threshold, contour_color, m_contour_thickness);
             }
             ImGui::SetItemTooltip("Threshold value for binary image. Pixels with intensity higher than this value will be set to 255, otherwise to 0.");
 
             if (ImGui::SliderInt("Thickness", &m_contour_thickness, 1, 5))
             {
-                events.ContoursChanged(contours, m_contour_threshold, contour_color, m_contour_thickness);
+                events.ContoursChanged(UIState::isContours, m_contour_threshold, contour_color, m_contour_thickness);
             }
             ImGui::SetItemTooltip("Thickness of the contour lines to draw.");
 
             if (ImGui::ColorEdit4("Color", (float*)&contour_color, ImGuiColorEditFlags_NoInputs))
             {
-                events.ContoursChanged(contours, m_contour_threshold, contour_color, m_contour_thickness);
+                events.ContoursChanged(UIState::isContours, m_contour_threshold, contour_color, m_contour_thickness);
             }
 
             ImGui::PopID();
         }
 
-        static bool triangulation = false;
         static int is_delaunay = 1;
         static ImVec4 triangle_line_color = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
         static int triangle_threshold = 10;
@@ -234,24 +277,24 @@ namespace gl_cv_app {
         if (ImGui::CollapsingHeader("Delaunay/Voronoi", ImGuiTreeNodeFlags_None))
         {
             ImGui::PushID("Triangulation");
-            if (ImGui::Checkbox("Enable", &triangulation))
+            if (ImGui::Checkbox("Enable", &UIState::isTriangulation))
             {
-                events.TriangulationChanged(triangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
+                events.TriangulationChanged(UIState::isTriangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
             }
 
             if (ImGui::RadioButton("Delaunay", &is_delaunay, 1))
             {
-                events.TriangulationChanged(triangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
+                events.TriangulationChanged(UIState::isTriangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
             }
             ImGui::SameLine();
             if (ImGui::RadioButton("Voronoi", &is_delaunay, 0))
             {
-                events.TriangulationChanged(triangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
+                events.TriangulationChanged(UIState::isTriangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
             }
 
             if (ImGui::SliderInt("Keypoint threshold", &triangle_threshold, 5, 25))
             {
-                events.TriangulationChanged(triangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
+                events.TriangulationChanged(UIState::isTriangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
             }
             ImGui::SetItemTooltip("Threshold for FAST keypoint detection algorithm. Higher threshold gives lower sensitivity.");
 
@@ -259,29 +302,52 @@ namespace gl_cv_app {
             {
                 if (ImGui::ColorEdit4("Color", (float*)&triangle_line_color, ImGuiColorEditFlags_NoInputs))
                 {
-                    events.TriangulationChanged(triangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
+                    events.TriangulationChanged(UIState::isTriangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
                 }
             }
             else
             {
                 if (ImGui::Checkbox("Draw locus centers", &draw_centers))
                 {
-                    events.TriangulationChanged(triangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
+                    events.TriangulationChanged(UIState::isTriangulation, is_delaunay, triangle_line_color, triangle_threshold, draw_centers);
                 }
             }
             ImGui::PopID();
         }
 
-        static bool is_acid = false;
         if (ImGui::CollapsingHeader("Accid effect", ImGuiTreeNodeFlags_None))
         {
-            ImGui::PushID("Accid effect");
-            if (ImGui::Checkbox("Apply effect", &is_acid))
+            ImGui::PushID("Acid");
+            if (ImGui::Checkbox("Apply effect", &UIState::isAcid))
             {
-                events.AcidChanged(is_acid);
+                events.AcidChanged(UIState::isAcid);
+            }
+            ImGui::PopID();
+        }
+
+        static float red_offset = 0.0f, green_offset = 0.0f, blue_offset = 0.0f;
+        if (ImGui::CollapsingHeader("Chromatic Aberration", ImGuiTreeNodeFlags_None))
+        {
+            ImGui::PushID("Aberration");
+            if (ImGui::Checkbox("Apply effect", &UIState::isAberration))
+            {
+                events.AberrationChanged(UIState::isAberration, red_offset, green_offset, blue_offset);
             }
 
+            if (ImGui::SliderFloat("Red offset", &red_offset, 0.0f, 30.0f))
+            {
+                events.AberrationChanged(UIState::isAberration, red_offset, green_offset, blue_offset);
+            }
 
+            if (ImGui::SliderFloat("Green offset", &green_offset, 0.0f, 30.0f))
+            {
+                events.AberrationChanged(UIState::isAberration, red_offset, green_offset, blue_offset);
+            }
+
+            if (ImGui::SliderFloat("Blue offset", &blue_offset, 0.0f, 30.0f))
+            {
+                events.AberrationChanged(UIState::isAberration, red_offset, green_offset, blue_offset);
+            }
             ImGui::PopID();
         }
 
