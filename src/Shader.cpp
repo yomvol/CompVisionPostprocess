@@ -119,6 +119,11 @@ namespace gl_cv_app {
         glUniform2f(getUniformLocation(name), v0, v1);
     }
 
+    void Shader::setUniform3F(const std::string& name, float v0, float v1, float v2)
+    {
+        glUniform3f(getUniformLocation(name), v0, v1, v2);
+    }
+
     int Shader::getUniformLocation(const std::string& name)
     {
         if (m_uniform_location_cache.find(name) != m_uniform_location_cache.end())

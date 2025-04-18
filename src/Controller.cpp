@@ -10,6 +10,7 @@ namespace gl_cv_app
     uint TriangulationEffect::m_id = 5;
     uint DenoisingEffect::m_id = 6;
     uint AcidEffect::m_id = 7;
+    uint ChromaticAberrationEffect::m_id = 8;
 
     Controller::~Controller()
     {
@@ -30,7 +31,6 @@ namespace gl_cv_app
 
     void Controller::bindEvents()
     {
-        //view->events.NegativeChanged += std::bind(&Controller::OnNegativeChanged, this, std::placeholders::_1);
         view->events.NegativeChanged += std::bind(&Controller::onBoolChanged<NegativeEffect>, this, std::placeholders::_1);
         view->events.GrayscaleChanged += std::bind(&Controller::onBoolChanged<GrayscaleEffect>, this, std::placeholders::_1);
         view->events.BlurChanged += std::bind(&Controller::onBlurChanged, this, std::placeholders::_1, std::placeholders::_2);
@@ -39,7 +39,7 @@ namespace gl_cv_app
         view->events.TriangulationChanged += std::bind(&Controller::onTriangulationChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5);
         view->events.DenoisingChanged += std::bind(&Controller::onDenoisingChanged, this, std::placeholders::_1, std::placeholders::_2);
         view->events.AcidChanged += std::bind(&Controller::onAcidChanged, this, std::placeholders::_1);
-    
+        view->events.AberrationChanged += std::bind(&Controller::onAberrationChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
     }
 
     bool Controller::checkIfConflicts(unsigned int id)
@@ -49,7 +49,6 @@ namespace gl_cv_app
             if (conflict_matrix[id][key])
                 return true;
         }
-
         return false;
     }
 
@@ -287,6 +286,43 @@ namespace gl_cv_app
         else
         {
             auto res = m_active_effects[id];
+            model->removeEffect(res);
+            m_active_effects.erase(id);
+        }
+    }
+
+    void Controller::onAberrationChanged(bool flag, float redOffset, float greenOffset, float blueOffset)
+    {
+        auto id = ChromaticAberrationEffect::getID();
+
+        if (flag)
+        {
+            if (checkIfConflicts(id))
+            {
+                view->setIsShowingConflict(true);
+                Renderer::UIState::isAberration = false;
+                return;
+            }
+
+            float rOffset = redOffset / 100.0f;
+            float gOffset = greenOffset / 100.0f;
+            float bOffset = blueOffset / 100.0f;
+
+            auto iter = m_active_effects.find(id);
+            if (iter != m_active_effects.end())
+            {
+                dynamic_cast<ChromaticAberrationEffect&>(*(iter->second)).setOffset(rOffset, gOffset, bOffset);
+            }
+            else
+            {
+                auto chrom = std::make_shared<ChromaticAberrationEffect>(rOffset, gOffset, bOffset);
+                model->addEffect(chrom);
+                m_active_effects.insert({ id, chrom });
+            }
+        }
+        else
+        {
+            auto& res = m_active_effects[id];
             model->removeEffect(res);
             m_active_effects.erase(id);
         }

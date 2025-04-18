@@ -21,7 +21,6 @@ namespace gl_cv_app {
     /// <summary>
     /// View component of the application. It is responsible for rendering GUI.
     /// </summary>
-
     class Renderer {
     public:
         Renderer();
@@ -47,6 +46,7 @@ namespace gl_cv_app {
             utils::Event<bool, bool, ImVec4, int, bool> TriangulationChanged;
             utils::Event<bool, float> DenoisingChanged;
             utils::Event<bool> AcidChanged;
+            utils::Event<bool, float, float, float> AberrationChanged;
         } Events;
         Events events;
 
@@ -64,6 +64,7 @@ namespace gl_cv_app {
             static bool isTriangulation;
             static bool isDenoising;
             static bool isAcid;
+            static bool isAberration;
         };
 
     private:

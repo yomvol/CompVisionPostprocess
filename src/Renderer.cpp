@@ -13,6 +13,7 @@ namespace gl_cv_app {
     bool Renderer::UIState::isTriangulation = false;
     bool Renderer::UIState::isDenoising = false;
     bool Renderer::UIState::isAcid = false;
+    bool Renderer::UIState::isAberration = false;
 #pragma endregion
 
     Renderer::Renderer() : m_texture(0), m_tex_size(0, 0) {}
@@ -43,9 +44,7 @@ namespace gl_cv_app {
             m_clear_color.z * m_clear_color.w, m_clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Render UI here
         renderUI();
-
         ImGui::Render();
 
         if (m_is_no_cam_error)
@@ -67,7 +66,6 @@ namespace gl_cv_app {
         }
 
         // we render on our framebuffer here
-        // do we even need to use a shader?
         std::shared_ptr<Shader> shader;
         bool is_custom_shader = controller->isUsingCustomShader(shader);
         if (is_custom_shader)
@@ -91,7 +89,6 @@ namespace gl_cv_app {
             layout.Push<float>(2);
             layout.Push<float>(2);
             va.addBuffer(vb, layout);
-            //Shader shader("res\\shaders\\Basic.shader");
 
             m_framebuffer->bind();
             glViewport(0, 0, m_tex_size.first, m_tex_size.second);
@@ -206,7 +203,6 @@ namespace gl_cv_app {
         }
 
         static float denoising_strength = 75.0f;
-
         if (ImGui::CollapsingHeader("Denoising", ImGuiTreeNodeFlags_None))
         {
             ImGui::PushID("Denoising");
@@ -321,10 +317,38 @@ namespace gl_cv_app {
 
         if (ImGui::CollapsingHeader("Accid effect", ImGuiTreeNodeFlags_None))
         {
+            ImGui::PushID("Acid");
             if (ImGui::Checkbox("Apply effect", &UIState::isAcid))
             {
                 events.AcidChanged(UIState::isAcid);
             }
+            ImGui::PopID();
+        }
+
+        static float red_offset = 0.0f, green_offset = 0.0f, blue_offset = 0.0f;
+        if (ImGui::CollapsingHeader("Chromatic Aberration", ImGuiTreeNodeFlags_None))
+        {
+            ImGui::PushID("Aberration");
+            if (ImGui::Checkbox("Apply effect", &UIState::isAberration))
+            {
+                events.AberrationChanged(UIState::isAberration, red_offset, green_offset, blue_offset);
+            }
+
+            if (ImGui::SliderFloat("Red offset", &red_offset, 0.0f, 30.0f))
+            {
+                events.AberrationChanged(UIState::isAberration, red_offset, green_offset, blue_offset);
+            }
+
+            if (ImGui::SliderFloat("Green offset", &green_offset, 0.0f, 30.0f))
+            {
+                events.AberrationChanged(UIState::isAberration, red_offset, green_offset, blue_offset);
+            }
+
+            if (ImGui::SliderFloat("Blue offset", &blue_offset, 0.0f, 30.0f))
+            {
+                events.AberrationChanged(UIState::isAberration, red_offset, green_offset, blue_offset);
+            }
+            ImGui::PopID();
         }
 
         ImGui::End();

@@ -35,6 +35,7 @@ namespace gl_cv_app {
         void setUniform1F(const std::string& name, float value);
         void setUniform1I(const std::string& name, int value);
         void setUniform2F(const std::string& name, float v0, float v1);
+        void setUniform3F(const std::string& name, float v0, float v1, float v2);
     };
 
 }

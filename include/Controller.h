@@ -7,6 +7,7 @@
 #include "TriangulationEffect.h"
 #include "DenoisingEffect.h"
 #include "AcidEffect.h"
+#include "ChromaticAberrationEffect.h"
 #include <array>
 
 namespace gl_cv_app
@@ -41,6 +42,7 @@ namespace gl_cv_app
         void onTriangulationChanged(bool flag, bool delaunay, ImVec4 color, int threshold, bool is_drawing_centers);
         void onDenoisingChanged(bool flag, float strength);
         void onAcidChanged(bool flag);
+        void onAberrationChanged(bool flag, float redOffset, float greenOffset, float blueOffset);
 
         enum class EffectType
         {
@@ -52,18 +54,20 @@ namespace gl_cv_app
             Triangulation,
             Denoising,
             Acid,
+            ChromaticAberration,
             Count // ensure that Count is the last here
         };
 
         constexpr static std::array<std::array<bool, (size_t)EffectType::Count>, (size_t)EffectType::Count> conflict_matrix = { {
-            {false, true, false, true, true, true, false, true}, // Negative conflicts with all, except Blur amd Denoising
-            {true, false, false, true, true, true, false, true}, // Grayscale conflicts with all, except Blur amd Denoising
-            {false, false, false, true, false, true, true, true}, // Blur conflicts with Edges, Contours, Triangulation, Denoising and Acid
-            {true, true, true, false, true, true, true, true}, // Edges conflicts with Negative, Grayscale, Contours, Triangulation, Denoising and Acid
-            {true, true, false, true, false, true, false, true}, // Contours conflicts with Negative, Grayscale, Edges, Triangulation and Acid
-            {true, true, true, true, true, false, true, true}, // Triangulation conflicts with Negative, Grayscale, Edges, Contours, Denoising and Acid
-            {false, false, true, true, false, true, false, true}, // Denoising conflicts with Negative, Grayscale, Edges, Triangulation and Acid
-            {true, true, true, true, true, true, true, false} // Acid conflicts with Negative, Grayscale, Edges, Contours, Triangulation and Denoising
-        }};
+            {false, true, false, true, true, true, false, true, true}, // Negative conflicts with all, except Blur amd Denoising
+            {true, false, false, true, true, true, false, true, true}, // Grayscale conflicts with all, except Blur amd Denoising
+            {false, false, false, true, false, true, true, true, true}, // Blur conflicts with Edges, Contours, Triangulation, Denoising and Acid
+            {true, true, true, false, true, true, true, true, true}, // Edges conflicts with Negative, Grayscale, Contours, Triangulation, Denoising and Acid
+            {true, true, false, true, false, true, false, true, true}, // Contours conflicts with Negative, Grayscale, Edges, Triangulation and Acid
+            {true, true, true, true, true, false, true, true, true}, // Triangulation conflicts with Negative, Grayscale, Edges, Contours, Denoising and Acid
+            {false, false, true, true, false, true, false, true, true}, // Denoising conflicts with Negative, Grayscale, Edges, Triangulation and Acid
+            {true, true, true, true, true, true, true, false, true}, // Acid conflicts with Negative, Grayscale, Edges, Contours, Triangulation and Denoising
+            {true, true, true, true, true, true, true, true, false} // Chromatic Aberration conflicts with all, except itself
+            }};
     };
 }
