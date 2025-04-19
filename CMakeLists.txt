@@ -24,8 +24,7 @@ if (${CMAKE_CONFIGURATION_TYPES} STREQUAL "Release")
 endif()
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-#find_package(OpenGL REQUIRED)
+find_package(OpenGL REQUIRED)
 
 # Get glew
 set(glew-cmake_BUILD_SHARED FALSE)
@@ -105,6 +104,7 @@ else()
         "include/VertexBuffer.h" "src/VertexBuffer.cpp" "include/VertexArray.h" "src/VertexArray.cpp"
         "include/VertexBufferLayout.h" "include/Framebuffer.h" "src/Framebuffer.cpp"
          "include/PostProcessingPipeline.h" "src/PostProcessingPipeline.cpp" "include/Effect.h" "include/NegativeEffect.h" "utils/Event.h" "include/Controller.h" "src/Controller.cpp" "include/GrayscaleEffect.h" "include/BlurEffect.h" "include/EdgesEffect.h" "include/ContourEffect.h" "include/TriangulationEffect.h" "include/DenoisingEffect.h" "include/AcidEffect.h"
+    "include/ChromaticAberrationEffect.h"
     )
 endif()
 
