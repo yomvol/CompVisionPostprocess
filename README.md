@@ -1,4 +1,4 @@
-My pet project that makes use of OpenCV, OpenGL and ImGui to apply various computer vision techniques to webcam stream. UI panels are dockable, you can "drag and drop" it and the configuration should be persistent between application runs. Performance is limited by your webcamera's maximum FPS (and it may change due to lighting conditions).
+My pet project that makes use of OpenCV, OpenGL and ImGui to apply various computer vision techniques to webcam stream. UI panels are dockable, you can "drag and drop" it and the configuration should be persistent between application runs. Performance is limited by your webcamera's maximum FPS (and it may change due to lighting conditions). The app has been tested on Windows 10 x64, OpenCV version 4.10.0
 
 ## Knows issues
 1) Chromatic aberration produces artifacts and screen tearing at high offsets. Try to keep values closer to zero.
