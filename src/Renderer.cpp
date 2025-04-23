@@ -2,6 +2,8 @@
 #include "Controller.h"
 #include <iostream>
 
+using namespace gl_utils;
+
 namespace gl_cv_app {
 
 #pragma region UIState
@@ -64,7 +66,7 @@ namespace gl_cv_app {
 
             return;
         }
-
+        
         // we render on our framebuffer here
         std::shared_ptr<Shader> shader;
         bool is_custom_shader = controller->isUsingCustomShader(shader);
@@ -120,7 +122,7 @@ namespace gl_cv_app {
 
     void Renderer::createFramebuffer(GLuint texture)
     {
-        m_framebuffer = std::make_unique<Framebuffer>(texture, m_width, m_height);
+        m_framebuffer = std::make_unique<gl_utils::Framebuffer>(texture, m_width, m_height);
     }
 
     std::pair<int, int> Renderer::getWindowSize()

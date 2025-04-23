@@ -1,5 +1,7 @@
 #include "Controller.h"
 
+using namespace gl_utils;
+
 namespace gl_cv_app
 {
     uint NegativeEffect::m_id = 0;

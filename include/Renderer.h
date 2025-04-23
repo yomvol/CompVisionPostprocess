@@ -10,7 +10,7 @@
 #include "IndexBuffer.h"
 #include "Shader.h"
 #include "Framebuffer.h"
-#include "../utils/Event.h"
+#include "Event.h"
 
 namespace gl_cv_app {
     void GLAPIENTRY errorOccurredGL(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message,
@@ -26,7 +26,7 @@ namespace gl_cv_app {
         Renderer();
         ~Renderer();
         void init(GLFWwindow* window);
-        void draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
+        void draw(const gl_utils::VertexArray& va, const gl_utils::IndexBuffer& ib, const gl_utils::Shader& shader) const;
         void render();
         void setTexture(GLuint texture, int width, int height) { m_texture = texture; m_tex_size.first = width; m_tex_size.second = height; }
         void setTexture(GLuint texture) { m_texture = texture; }
@@ -73,7 +73,7 @@ namespace gl_cv_app {
         std::pair<int, int> m_tex_size;
         int m_width;
         int m_height;
-        std::unique_ptr<Framebuffer> m_framebuffer;
+        std::unique_ptr<gl_utils::Framebuffer> m_framebuffer;
         ImGuiIO* m_io;
         ImVec4 m_clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
         ImGuiWindowFlags m_viewport_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse |

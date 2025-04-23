@@ -66,13 +66,13 @@ void gl_cv_app::PostProcessingPipeline::removeEffect(const std::shared_ptr<Effec
     m_effects.erase(effect);
 }
 
-std::shared_ptr<gl_cv_app::Shader> gl_cv_app::PostProcessingPipeline::getShaderIfAny()
+std::shared_ptr<gl_utils::Shader> gl_cv_app::PostProcessingPipeline::getShaderIfAny()
 {
     for (auto& effect : m_effects)
     {
         if (effect->isUsingCustomShader())
         {
-            auto ptr = std::make_shared<gl_cv_app::Shader>(effect->getShaderPath());
+            auto ptr = std::make_shared<gl_utils::Shader>(effect->getShaderPath());
             effect->setUniforms(ptr, this);
             return ptr;
         }

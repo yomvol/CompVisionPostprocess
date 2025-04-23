@@ -1,5 +1,8 @@
 #include "VertexArray.h"
 
+namespace gl_utils
+{
+
 VertexArray::VertexArray()
 {
     glGenVertexArrays(1, &m_RendererID);
@@ -33,4 +36,5 @@ void VertexArray::bind() const
 void VertexArray::unbind() const
 {
     glBindVertexArray(0);
+}
 }

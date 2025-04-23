@@ -1,5 +1,7 @@
 #pragma once
 
+namespace gl_utils
+{
 class IndexBuffer
 {
 private:
@@ -15,3 +17,4 @@ public:
 
     inline unsigned int getCount() const { return m_Count; }
 };
+}

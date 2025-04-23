@@ -1,12 +1,12 @@
 #pragma once
 #include <opencv2/opencv.hpp>
+#include "Shader.h"
 
 namespace gl_cv_app {
 
     // planned effects: negative, contours, channel filter, edge detection, sharpen, grayscale, white balance,
     // chromatic abberation, blur
 
-    class Shader;
     class PostProcessingPipeline;
 
     class Effect
@@ -22,7 +22,7 @@ namespace gl_cv_app {
         // inline static uint getID() { return m_id; }; ALWAYS DEFINE THIS GETTER IN DERIVED CLASSES
 
         virtual bool isUsingCustomShader() = 0;
-        virtual void setUniforms(std::shared_ptr<gl_cv_app::Shader>, PostProcessingPipeline* pipe) {};
+        virtual void setUniforms(std::shared_ptr<gl_utils::Shader> shader_ptr, PostProcessingPipeline* pipe) {};
         virtual std::string getShaderPath() { return ""; };
 
     protected:
