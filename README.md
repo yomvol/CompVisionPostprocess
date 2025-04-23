@@ -4,7 +4,7 @@ A pet project desktop app that makes use of OpenCV, OpenGL and ImGui to apply va
 ## Knows issues
 1) Chromatic aberration produces artifacts and screen tearing at high offsets. Try to keep values closer to zero.
 
-## How to build
+## How to build on Windows
 CMake is used as a build system, so the process should be relatively straightforward. Though manual installation of OpenCV binaries is still required. Or you can try to build OpenCV from source. On Windows the process is as follows:
 1) Download the latest LTS version of OpenCV binaries from [here](https://sourceforge.net/projects/opencvlibrary/files/). Unpack and run the installer.
 2) Then create a system environment variable named OpenCV_DIR leading to the installed static libraries. For example, C:\PATHTOSTUFF\opencv\build\x64\vc16\lib
@@ -21,4 +21,21 @@ CMake is used as a build system, so the process should be relatively straightfor
    ```
    ```
    cmake --build . --config Release
+   ```
+
+## How to build on Linux
+1) Install OpenCV from a repository or compile it from source.
+2) Clone this repository:
+   ```
+   git clone https://github.com/yomvol/CompVisionPostprocess.git
+   ```
+3) Into command prompt:
+   ```
+   mkdir build && cd build
+   ```
+   ```
+   cmake .. -DCMAKE_BUILD_TYPE=Release
+   ```
+   ```
+   cmake --build .
    ```
