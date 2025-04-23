@@ -36,7 +36,7 @@ namespace gl_cv_app {
         GLuint getPrevTexture() { return m_prev_texture; }
         void addEffect(const std::shared_ptr<Effect> effect);
         void removeEffect(const std::shared_ptr<Effect> effect);
-        std::shared_ptr<Shader> getShaderIfAny();
+        std::shared_ptr<gl_utils::Shader> getShaderIfAny();
         float getTime() { return glfwGetTime(); }
         std::pair<float, float> getResolution();
         void setResolution(std::pair<int, int> res) { m_resolution = res; }

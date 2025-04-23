@@ -3,7 +3,7 @@
 #include <sstream>
 #include <fstream>
 
-namespace gl_cv_app {
+namespace gl_utils {
 
     Shader::Shader(const std::string& filepath) : m_file_path(filepath), m_renderer_id(0)
     {

@@ -16,7 +16,7 @@ namespace gl_cv_app
 
         bool isUsingCustomShader() override { return true; };
         std::string getShaderPath() override { return "res\\shaders\\Acid.shader"; };
-        void setUniforms(std::shared_ptr<Shader> shader, PostProcessingPipeline* pipe) override
+        void setUniforms(std::shared_ptr<gl_utils::Shader> shader, PostProcessingPipeline* pipe) override
         {
             auto time = pipe->getTime();
             float delta_time = time - m_prev_time;
