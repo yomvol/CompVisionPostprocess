@@ -112,3 +112,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE imgui ${GLEW_INCLUDE_DIRS} ${
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui libglew_static ${OpenCV_LIBS} $<$<CONFIG:Release>:Kernel32.lib>)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:DEBUG_BUILD> $<$<CONFIG:Release>:RELEASE_BUILD>)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/res $<TARGET_FILE_DIR:${PROJECT_NAME}>/res
+)
