@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <GL/glew.h>
 
-namespace gl_cv_app {
+namespace gl_utils {
     struct ShaderProgramSource
     {
         std::string vertex_source;

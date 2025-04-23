@@ -22,7 +22,7 @@ namespace gl_cv_app
     public:
         explicit Controller(Renderer* v, PostProcessingPipeline* m) : view(v), model(m) { bindEvents(); v->controller = this; };
         ~Controller();
-        bool isUsingCustomShader(std::shared_ptr<Shader>& sh); // view asks model if we need custom shader. Just in case passes pointer.
+        bool isUsingCustomShader(std::shared_ptr<gl_utils::Shader>& sh); // view asks model if we need custom shader. Just in case passes pointer.
 
         Renderer* view;
         PostProcessingPipeline* model;

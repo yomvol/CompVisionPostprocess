@@ -21,7 +21,7 @@ namespace gl_cv_app
         bool isUsingCustomShader() override { return true; };
         std::string getShaderPath() override { return "res\\shaders\\Aberration.shader"; };
 
-        void setUniforms(std::shared_ptr<Shader> shader, PostProcessingPipeline* pipe) override
+        void setUniforms(std::shared_ptr<gl_utils::Shader> shader, PostProcessingPipeline* pipe) override
         {
             shader->bind();
             glActiveTexture(GL_TEXTURE0);

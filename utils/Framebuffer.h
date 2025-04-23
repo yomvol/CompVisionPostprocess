@@ -1,5 +1,7 @@
 #pragma once
 
+namespace gl_utils
+{
 class Framebuffer
 {
 private:
@@ -15,3 +17,4 @@ public:
     void unbind() const;
 
 };
+}

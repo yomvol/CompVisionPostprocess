@@ -2,6 +2,8 @@
 #include <GL/glew.h>
 #include <iostream>
 
+namespace gl_utils
+{
 Framebuffer::Framebuffer(unsigned int textureID, unsigned int width, unsigned int height)
 {
 	glGenFramebuffers(1, &m_FBO_ID);
@@ -59,4 +61,5 @@ void Framebuffer::bind() const
 void Framebuffer::unbind() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 }

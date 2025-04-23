@@ -1,6 +1,9 @@
 #include "VertexBuffer.h"
 #include "Renderer.h"
 
+namespace gl_utils
+{
+
 VertexBuffer::VertexBuffer(const void* data, unsigned int size)
 {
     glGenBuffers(1, &m_RendererID);
@@ -23,3 +26,4 @@ void VertexBuffer::unbind() const
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+}

@@ -2,6 +2,9 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 
+namespace gl_utils
+{
+
 class VertexArray
 {
 private:
@@ -15,3 +18,4 @@ public:
     void bind() const;
     void unbind() const;
 };
+}
