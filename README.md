@@ -1,6 +1,12 @@
 # Classic computer vision effects on your webcamera
 A pet project desktop app that makes use of OpenCV, OpenGL and ImGui to apply various computer vision techniques to webcam stream. UI panels are dockable, you can "drag and drop" it and the configuration should be persistent between application runs. Performance is limited by your webcamera's maximum FPS (and it may change due to lighting conditions). The app has been tested on Windows 10 x64, OpenCV version 4.10.0
 
+![](imgs/Screen1.PNG)
+![](imgs/Screen2.PNG)
+![](imgs/Screen3.PNG)
+![](imgs/Screen4.PNG)
+![](imgs/Screen5.PNG)
+
 ## Knows issues
 1) Chromatic aberration produces artifacts and screen tearing at high offsets. Try to keep values closer to zero.
 
